@@ -254,6 +254,17 @@ select:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px var(--rin
 .yo__acc{display:flex;flex-wrap:wrap;gap:0 22px}
 .check .opt{color:var(--muted);font-size:14px}
 
+/* Revisión 25 nov: disponibilidad, barra fija en celular, privacidad */
+.day.is-lleno:disabled{text-decoration:line-through;text-decoration-thickness:1px}
+.lg--lleno{width:auto;height:auto;background:none;font-style:normal;font-size:12px;text-decoration:line-through;color:var(--off-ink);margin-right:2px}
+.bk__title{scroll-margin-top:96px}
+.privacidad{font-size:14px;line-height:1.5}
+.hero__dir{color:inherit;text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px}
+.nota .btn-row{margin-top:10px}
+@media (max-width:760px){
+  .bk__bar.is-lista{position:sticky;bottom:0;z-index:5;background:var(--card-bg);margin-left:calc(-1 * var(--bk-pad, 20px));margin-right:calc(-1 * var(--bk-pad, 20px));padding:14px var(--bk-pad, 20px) calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(28,27,26,.08)}
+}
+
 /* Estilo 1 · crema y oro (referencia: Oura en awesome-design-md). Tokens de DESIGN.md */
 :root{
   --bg:#f7f1e8; --nav-bg:#f7f1e8; --card-bg:#ffffff; --card-border:#ece5d8; --field-bg:#ffffff;

@@ -8,6 +8,13 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Hair Beauty by Rosa Paulino">
 <meta property="og:description" content="Salón de belleza en Santo Domingo. Reserva tu cita en línea.">
+<meta property="og:url" content="https://josue201024.github.io/hair-beauty/">
+<meta property="og:image" content="https://josue201024.github.io/hair-beauty/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hair Beauty by Rosa Paulino. Reserva tu cita en línea.">
+<meta property="og:locale" content="es_DO">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#f7f1e8">
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -256,6 +263,17 @@ select:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px var(--rin
 .yo__acc{display:flex;flex-wrap:wrap;gap:0 22px}
 .check .opt{color:var(--muted);font-size:14px}
 
+/* Revisión 25 nov: disponibilidad, barra fija en celular, privacidad */
+.day.is-lleno:disabled{text-decoration:line-through;text-decoration-thickness:1px}
+.lg--lleno{width:auto;height:auto;background:none;font-style:normal;font-size:12px;text-decoration:line-through;color:var(--off-ink);margin-right:2px}
+.bk__title{scroll-margin-top:96px}
+.privacidad{font-size:14px;line-height:1.5}
+.hero__dir{color:inherit;text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px}
+.nota .btn-row{margin-top:10px}
+@media (max-width:760px){
+  .bk__bar.is-lista{position:sticky;bottom:0;z-index:5;background:var(--card-bg);margin-left:calc(-1 * var(--bk-pad, 20px));margin-right:calc(-1 * var(--bk-pad, 20px));padding:14px var(--bk-pad, 20px) calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(28,27,26,.08)}
+}
+
 /* Estilo 1 · crema y oro (referencia: Oura en awesome-design-md). Tokens de DESIGN.md */
 :root{
   --bg:#f7f1e8; --nav-bg:#f7f1e8; --card-bg:#ffffff; --card-border:#ece5d8; --field-bg:#ffffff;
@@ -306,8 +324,8 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
     </a>
     <nav class="nav__links" aria-label="Secciones">
       <a href="#servicios">Servicios</a>
-      <a href="#reservar">Reservar</a>
-      <a href="#horario">Horario</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#horario">Horario y ubicación</a>
     </nav>
     <a class="btn btn--cta nav__cta" href="#reservar">Reservar cita</a>
   </div>
@@ -324,7 +342,7 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
           <a class="btn btn--cta" href="#reservar">Reservar cita</a>
           <a class="btn btn--ghost" href="#servicios">Ver servicios</a>
         </div>
-        <p class="hero__meta"><span class="status"><span class="dot" id="heroDot" aria-hidden="true"></span><span id="heroEstado">Lunes y de miércoles a sábado</span></span><span>Calle 4 #12, Santo Domingo</span></p>
+        <p class="hero__meta"><span class="status"><span class="dot" id="heroDot" aria-hidden="true"></span><span id="heroEstado">Lunes y de miércoles a sábado</span></span><a class="hero__dir" href="https://www.google.com/maps/search/?api=1&amp;query=Calle%204%20%2312%2C%20Santo%20Domingo%2C%20Rep%C3%BAblica%20Dominicana" target="_blank" rel="noopener">Calle 4 #12, Santo Domingo</a></p>
       </div>
       <div class="hero__art">
         <img src="assets/logo-hero.webp" alt="Logo de Hair Beauty by Rosa Paulino" width="791" height="754">
@@ -365,16 +383,16 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
         </li>
         <li class="step">
           <span class="step__n"><svg class="hex" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 1.5 38.5 12v22L20 44.5 1.5 34V12z"/></svg><span>2</span></span>
-          <h3>Envías la solicitud por WhatsApp</h3>
-          <p>El mensaje ya va escrito con tu cita. Solo tienes que tocar enviar.</p>
+          <h3>Solicitas tu cita aquí</h3>
+          <p>Dejas tu nombre y WhatsApp. La hora queda apartada para ti mientras te la confirmamos.</p>
         </li>
         <li class="step">
           <span class="step__n"><svg class="hex" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 1.5 38.5 12v22L20 44.5 1.5 34V12z"/></svg><span>3</span></span>
           <h3>Te confirmamos y te recordamos</h3>
-          <p>Te respondemos por WhatsApp para confirmar y te escribimos antes de tu cita.</p>
+          <p>Te escribimos por WhatsApp para confirmar. Si dejas tu correo, te llega también un recordatorio el día antes.</p>
         </li>
       </ol>
-      <p class="policy">Si no respondes al recordatorio, la cita se libera para otra clienta.</p>
+      <p class="policy">¿No puedes venir? Cancela desde esta misma página o escríbenos por WhatsApp, así otra clienta puede usar ese espacio.</p>
     </div>
   </section>
 
@@ -573,7 +591,15 @@ const pasos = () => {
     `<li class="${i + 1 < n ? "is-done" : i + 1 === n ? "is-on" : ""}" ${i + 1 === n ? 'aria-current="step"' : ""}>${t}</li>`).join("")}</ol>`;
 };
 
-const vistaCargando = () => `<div class="cargando" aria-busy="true"><span class="spin" aria-hidden="true"></span><p>Cargando las horas libres…</p></div>`;
+const horarios = n => `${n} ${n === 1 ? "horario disponible" : "horarios disponibles"}`;
+const motivo = d => {
+  if (d < hoy0()) return "Fecha pasada";
+  if (d >= limite()) return "Todavía no se puede reservar";
+  const r = rango(d); if (!r) return "Salón cerrado";
+  if (key(d) === key(hoy0())) return "Ya no quedan horarios hoy";
+  return "Agenda completa";
+};
+const vistaCargando = () => `<div class="cargando" aria-busy="true"><span class="spin" aria-hidden="true"></span><p>Cargando los horarios disponibles…</p><p class="muted">¿Tarda mucho? <a href="${esc(wa(`Hola, ${CONFIG.nombre}. Quiero reservar una cita.`))}" target="_blank" rel="noopener">Consulta por WhatsApp</a></p></div>`;
 
 const vistaElegir = () => {
   const y = st.mes.getFullYear(), mo = st.mes.getMonth();
@@ -582,7 +608,8 @@ const vistaElegir = () => {
   let dias = "<span></span>".repeat(off);
   for (let i = 1; i <= n; i++) {
     const d = new Date(y, mo, i), cnt = libres(d).length, sel = st.dia && key(st.dia) === key(d), hoy = key(d) === key(hoy0());
-    dias += `<button type="button" class="day${hoy ? " is-today" : ""}" data-k="d${i}" data-dia="${i}" aria-pressed="${!!sel}" ${cnt ? "" : "disabled"} aria-label="${esc(cap(fechaLarga(d)))}${hoy ? ", hoy" : ""}${cnt ? `, ${cnt} horas libres` : ", sin horas"}">${i}</button>`;
+    const por = cnt ? "" : motivo(d);
+    dias += `<button type="button" class="day${hoy ? " is-today" : ""}${por === "Agenda completa" ? " is-lleno" : ""}" data-k="d${i}" data-dia="${i}" aria-pressed="${!!sel}" ${cnt ? "" : "disabled"} ${por ? `title="${por}"` : ""} aria-label="${esc(cap(fechaLarga(d)))}${hoy ? ", hoy" : ""}${cnt ? `, ${horarios(cnt)}` : `, ${por.toLowerCase()}`}">${i}</button>`;
   }
   const mesBase = new Date(hoy0().getFullYear(), hoy0().getMonth(), 1);
   const prevOk = st.mes > mesBase, nextOk = new Date(y, mo + 1, 1) < limite();
@@ -590,7 +617,7 @@ const vistaElegir = () => {
   const grupo = (titulo, lista) => lista.length ? `<div class="tgroup"><p class="tgroup__h">${titulo}</p><div class="tlist">${lista.map(m =>
     `<button type="button" class="time" data-k="t${m}" data-hora="${m}" aria-pressed="${st.hora === m}">${hora(m)}</button>`).join("")}</div></div>` : "";
   const nombres = elegidos().map(s => s.nombre).join(" + ");
-  const nota = carga === "error" ? '<p class="nota" role="status">No pudimos cargar las horas ocupadas del salón. Puedes elegir día y hora y enviar tu solicitud por WhatsApp; te confirmamos por ahí.</p>' : "";
+  const nota = carga === "error" ? `<div class="nota" role="status"><p>No pudimos cargar la agenda del salón. Puedes reintentar, o elegir día y hora y enviar tu solicitud por WhatsApp.</p><p class="btn-row"><button type="button" class="btn btn--ghost btn--sm" data-k="reint" data-reintentar>Reintentar</button><a class="btn btn--ghost btn--sm" href="${esc(wa(`Hola, ${CONFIG.nombre}. Quiero reservar una cita.`))}" target="_blank" rel="noopener">Consultar por WhatsApp</a></p></div>` : "";
   return `${st.aviso ? `<p class="nota nota--alerta" role="alert">${esc(st.aviso)}</p>` : ""}${nota}
   <fieldset class="bk__svcs">
     <legend class="label">Servicios${SERVICIOS.length > 1 ? ' <span class="opt">puedes elegir varios</span>' : ""}</legend>
@@ -606,14 +633,14 @@ const vistaElegir = () => {
         </div>
       </div>
       <div class="cal__grid">${wd}${dias}</div>
-      <p class="legend"><span><i class="lg lg--on"></i>Con horas libres</span><span><i class="lg lg--off"></i>Cerrado o lleno</span><span><i class="lg lg--today"></i>Hoy</span></p>
+      <p class="legend"><span><i class="lg lg--on"></i>Con horarios</span><span><i class="lg lg--lleno">12</i>Agenda completa</span><span><i class="lg lg--off"></i>Cerrado o pasado</span><span><i class="lg lg--today"></i>Hoy</span></p>
     </div>
     <div class="times">
-      <p class="label" id="timesH">${st.dia ? esc(cap(fechaLarga(st.dia))) : "Horas libres"}</p>
-      ${st.dia ? (hs.length ? grupo("Mañana", hs.filter(m => m < 720)) + grupo("Tarde", hs.filter(m => m >= 720)) : '<p class="muted">Ese día ya no quedan horas.</p>') : '<p class="muted">Elige un día en el calendario.</p>'}
+      <p class="label" id="timesH">${st.dia ? esc(cap(fechaLarga(st.dia))) : "Horarios"}</p>
+      ${st.dia ? (hs.length ? grupo("Mañana", hs.filter(m => m < 720)) + grupo("Tarde", hs.filter(m => m >= 720)) : '<p class="muted">Ese día ya no quedan horarios.</p>') : '<p class="muted">Elige un día en el calendario de ${esc(MESES[mo])}.</p>'}
     </div>
   </div>
-  <div class="bk__bar">
+  <div class="bk__bar${st.hora != null ? " is-lista" : ""}">
     <p class="bk__sum"><b>${esc(nombres)}</b> · ${duracion(durTotal())} · ${dinero(precioTotal())}<br>
       <span class="muted">${st.dia ? esc(cap(fechaLarga(st.dia))) : "Sin día"}${st.hora != null ? " · " + hora(st.hora) : " · sin hora"}</span></p>
     <button type="button" class="btn btn--cta" data-k="cont" data-go="datos" ${st.hora == null ? "disabled" : ""}>Continuar</button>
@@ -665,7 +692,7 @@ const vistaDatos = () => `
       <div class="trampa" aria-hidden="true"><label for="f-web">No llenar</label><input id="f-web" name="web" type="text" tabindex="-1" autocomplete="off"></div>
       <div class="check">
         <input type="checkbox" id="f-recordar" ${st.datos.recordar === false ? "" : "checked"}>
-        <label for="f-recordar">Recordar mis datos en este teléfono para la próxima cita</label>
+        <label for="f-recordar">Recordar mis datos en este dispositivo para la próxima cita</label>
       </div>
       ${conServidor() ? `<div class="check">
         <input type="checkbox" id="f-promo" ${st.datos.promo ? "checked" : ""}>
@@ -675,11 +702,12 @@ const vistaDatos = () => `
         <input type="checkbox" id="f-ok" ${st.datos.ok ? "checked" : ""} aria-describedby="e-ok">
         <label for="f-ok">Acepto que el salón guarde mi nombre, WhatsApp y correo para gestionar mis citas.</label>
       </div>
+      <p class="muted privacidad field--full">Usamos tu nombre y WhatsApp para confirmar tu cita y avisarte de cambios; el correo, solo para enviarte la confirmación y un recordatorio. Para ver o borrar tus datos, escríbenos por WhatsApp al ${esc(telBonitoSalon())}.</p>
       <p class="err field--full" id="e-ok" hidden>Marca la casilla para continuar.</p>
       <p class="nota nota--alerta field--full" id="formMsg" role="alert" hidden></p>
       <div class="form__actions">
         <button type="button" class="btn btn--ghost" data-go="elegir">Atrás</button>
-        <button type="submit" class="btn btn--cta" id="enviarBtn">${conServidor() ? "Reservar cita" : "Continuar"}</button>
+        <button type="submit" class="btn btn--cta" id="enviarBtn">${conServidor() ? "Solicitar cita" : "Continuar en WhatsApp"}</button>
       </div>
     </form>
   </div>`;
@@ -699,6 +727,7 @@ const mensaje = d => {
   lineas.push("", "¿Me la confirman, por favor?");
   return lineas.join("\n");
 };
+const telBonitoSalon = () => { const d = String(CONFIG.whatsapp).replace(/\D/g, "").slice(-10); return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`; };
 const wa = texto => `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(texto)}`;
 const gcal = () => {
   const f = (d, m) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(Math.floor(m / 60))}${pad(m % 60)}00`;
@@ -712,9 +741,10 @@ const gcal = () => {
 
 const vistaListo = () => st.cita ? `
   <div class="listo">
-    <p class="listo__t">Tu cita quedó registrada</p>
+    <p class="listo__t">Recibimos tu solicitud</p>
     <p>La hora queda apartada para ti. Te escribiremos por WhatsApp al <b>${esc(st.datos.tel)}</b> para confirmarla.</p>
     <p><span class="tag">Pendiente de confirmar</span></p>
+    <p class="muted">¿Necesitas cambiar o cancelar? Puedes hacerlo en <a href="#mis" data-ir-mis>Tus citas en este dispositivo</a>, más abajo, o escribiéndonos por WhatsApp.</p>
     <div class="btn-row">
       <a class="btn btn--cta" href="${esc(gcal())}" target="_blank" rel="noopener">Añadir a Google Calendar</a>
       <a class="btn btn--ghost" href="${esc(wa(`Hola, ${CONFIG.nombre}. Acabo de reservar una cita para el ${fechaLarga(st.dia)} a las ${hora(st.hora)} a nombre de ${st.datos.nom} ${st.datos.ape}.`))}" target="_blank" rel="noopener">${ICON_WA}Escribir al salón</a>
@@ -734,7 +764,7 @@ const vistaListo = () => st.cita ? `
     <button type="button" class="linkbtn" data-go="nueva">Reservar otra cita</button>
   </div>`;
 
-const titulo = () => ({ elegir: "Elige servicio, día y hora", datos: "Tus datos", listo: st.cita ? "Cita registrada" : "Último paso" })[st.vista];
+const titulo = () => ({ elegir: "Elige servicio, día y hora", datos: "Tus datos", listo: st.cita ? "Solicitud recibida" : "Último paso" })[st.vista];
 
 function render(opts = {}) {
   if (carga === "cargando") {
@@ -745,7 +775,12 @@ function render(opts = {}) {
   bk.innerHTML = `
     <div class="bk__top"><h3 class="bk__title" id="bkTitle" tabindex="-1">${titulo()}</h3>${pasos()}</div>
     ${st.vista === "elegir" ? vistaElegir() : st.vista === "datos" ? vistaDatos() : vistaListo()}`;
-  if (opts.titulo) $("#bkTitle").focus({ preventScroll: true });
+  if (opts.titulo) {
+    const h = $("#bkTitle"); h.focus({ preventScroll: true });
+    // al cambiar de paso, el título queda arriba (debajo del menú fijo) para empezar a leer desde ahí
+    const r = h.getBoundingClientRect(), nav = $(".nav")?.offsetHeight || 0;
+    if (r.top < nav || r.top > innerHeight * 0.45) h.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
   else if (opts.foco) (bk.querySelector(`[data-k="${opts.foco}"]`) || $("#bkTitle")).focus({ preventScroll: true });
 }
 
@@ -775,13 +810,15 @@ bk.addEventListener("click", e => {
     avisar(`${elegidos().map(s => s.nombre).join(" y ")}: ${duracion(durTotal())}, ${dinero(precioTotal())}.`);
   } else if (t.dataset.mes) {
     st.mes = new Date(st.mes.getFullYear(), st.mes.getMonth() + Number(t.dataset.mes), 1);
+    // la cita elegida tiene que estar en el mes que se ve: si no, se limpia
+    if (st.dia && (st.dia.getMonth() !== st.mes.getMonth() || st.dia.getFullYear() !== st.mes.getFullYear())) { st.dia = null; st.hora = null; }
     render({ foco: t.dataset.k });
     if (!bk.querySelector(`[data-k="${t.dataset.k}"]:not(:disabled)`)) bk.querySelector("[data-k=mprev]:not(:disabled), [data-k=mnext]:not(:disabled)")?.focus();
     avisar(`${cap(MESES[st.mes.getMonth()])} ${st.mes.getFullYear()}`);
   } else if (t.dataset.dia) {
     st.dia = new Date(st.mes.getFullYear(), st.mes.getMonth(), Number(t.dataset.dia)); st.hora = null; st.aviso = "";
     render({ foco: t.dataset.k });
-    avisar(`${cap(fechaLarga(st.dia))}: ${libres(st.dia).length} horas libres. Las horas están a continuación.`);
+    avisar(`${cap(fechaLarga(st.dia))}: ${horarios(libres(st.dia).length)}. Están a continuación.`);
   } else if (t.dataset.hora) {
     st.hora = Number(t.dataset.hora); st.aviso = "";
     render({ foco: t.dataset.k });
@@ -798,7 +835,10 @@ bk.addEventListener("click", e => {
     guardarDatos(); store.del("hb-datos");
     st.datos = { notas: st.datos.notas, recordar: true };
     st.recordada = false; st.editar = true; render(); $("#f-nom").focus();
-    avisar("Listo. Borramos tus datos de este teléfono. Escribe los tuyos.");
+    avisar("Listo. Borramos tus datos de este dispositivo. Escribe los tuyos.");
+  } else if ("reintentar" in t.dataset) {
+    carga = "cargando"; render();
+    recargar().then(bien => { if (!bien) carga = "error"; st.mes = null; pintarServicios(); pintarHorario(); render({ titulo: true }); avisar(bien ? "Agenda cargada." : "Todavía no pudimos conectar."); });
   } else if ("enviar" in t.dataset) {
     guardarCita({}); pintarMis();
   }
@@ -827,7 +867,7 @@ bk.addEventListener("submit", async e => {
   if (!conServidor()) { st.vista = "listo"; render({ titulo: true }); return; }
 
   const btn = $("#enviarBtn"), msg = $("#formMsg");
-  btn.disabled = true; btn.textContent = "Reservando…"; msg.hidden = true;
+  btn.disabled = true; btn.textContent = "Enviando…"; msg.hidden = true;
   const r = await apiPost({
     accion: "reservar", servicios: [...st.svcs], fecha: key(st.dia), inicio: hhmm(st.hora),
     nombre: d.nom, apellido: d.ape, telefono: d.tel, correo: d.mail, notas: d.notas, promociones: !!d.promo, web: $("#f-web").value
@@ -838,7 +878,7 @@ bk.addEventListener("submit", async e => {
     const f = key(st.dia);
     (CONFIG.ocupados[f] = CONFIG.ocupados[f] || []).push(`${hhmm(st.hora)}-${hhmm(st.hora + durTotal())}`);
     st.vista = "listo"; render({ titulo: true }); pintarMis();
-    avisar("Tu cita quedó registrada.");
+    avisar("Recibimos tu solicitud. La hora queda apartada.");
     return;
   }
   if (["ocupado", "horario", "pasada", "cerrado", "fecha"].includes(r.error)) {
@@ -848,7 +888,7 @@ bk.addEventListener("submit", async e => {
     return;
   }
   if (r.error === "red" || r.error === "servidor") { st.sinServidor = true; st.vista = "listo"; render({ titulo: true }); return; }
-  btn.disabled = false; btn.textContent = "Reservar cita";
+  btn.disabled = false; btn.textContent = "Solicitar cita";
   msg.textContent = r.mensaje || "No se pudo reservar. Revisa tus datos."; msg.hidden = false;
   const campoMap = { nom: "nom", ape: "ape", tel: "tel", mail: "mail" };
   if (r.campo && campoMap[r.campo]) { $(`#f-${r.campo}`).setAttribute("aria-invalid", "true"); $(`#f-${r.campo}`).focus(); }
@@ -869,7 +909,7 @@ function pintarMis() {
       : `Hola, ${CONFIG.nombre}. Necesito cancelar mi cita del ${fechaLarga(d)} a las ${hora(c.hora)} (${c.servicios.join(" + ")}), a nombre de ${c.nombre}. Gracias.`;
   };
   box.hidden = false;
-  box.innerHTML = `<h3 class="mis__h">Tus citas en este teléfono</h3><ul>${citas.map(c => {
+  box.innerHTML = `<h3 class="mis__h">Tus citas en este dispositivo</h3><ul>${citas.map(c => {
     const d = deKey(c.fecha), estado = c.estado || "pendiente", activa = estado !== "cancelada";
     const cancelar = c.token && API
       ? `<button type="button" class="linkbtn" data-cancelar="${esc(c.id)}">Cancelar</button>`
@@ -963,6 +1003,7 @@ function pintarHorario() {
     const r = rango(d); if (!r || (i === 0 && m >= toMin(r[0]))) continue;
     txt = `Cerrado ahora · abre ${i === 0 ? "hoy" : i === 1 ? "mañana" : "el " + DIAS[d.getDay()]} a las ${hora(toMin(r[0]))}`; break;
   }
+  if (!abierto) txt += " · Puedes pedir tu cita en línea";
   for (const [dot, label] of [["#heroDot", "#heroEstado"], ["#visitDot", "#visitEstado"]]) {
     $(label).textContent = txt; $(dot).classList.toggle("is-open", abierto);
   }
