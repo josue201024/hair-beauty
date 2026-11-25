@@ -492,7 +492,7 @@ const store = {
   del(k) { try { localStorage.removeItem(k); } catch (_) {} }
 };
 // Datos de la clienta guardados en su propio teléfono (no salen de aquí salvo al reservar).
-const datosGuardados = () => { const d = store.get("hb-datos", null); return d && d.nom && d.ape && d.tel ? d : null; };
+const datosGuardados = () => { const d = store.get("hb-datos", null); return d && d.nom && d.tel ? d : null; };
 const ICON_WA = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.4-.3z"/></svg>';
 const ICON_PREV = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_NEXT = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -538,6 +538,9 @@ async function pedir(url, opciones) {
   } finally { clearTimeout(t); }
 }
 const apiGet = params => pedir(API + (API.includes("?") ? "&" : "?") + new URLSearchParams(params), { method: "GET" });
+const contados = new Set();
+// Conteo anónimo para saber en qué paso se quedan las clientas (sin nombres ni teléfonos).
+const contar = tipo => { if (!API || contados.has(tipo)) return; contados.add(tipo); try { apiPost({ accion: "evento", tipo }); } catch (_) {} };
 const apiPost = cuerpo => pedir(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(cuerpo) });
 
 function aplicar(d) {
@@ -672,12 +675,12 @@ const vistaDatos = () => `
       ${st.recordada && !st.editar ? `
       <div class="yo field--full">
         <p class="yo__h">Hola de nuevo, ${esc(st.datos.nom)}</p>
-        <p class="muted">Reservas como <b>${esc(st.datos.nom)} ${esc(st.datos.ape)}</b> · ${esc(st.datos.tel)}${st.datos.mail ? " · " + esc(st.datos.mail) : ""}</p>
+        <p class="muted">Reservas como <b>${esc(`${st.datos.nom} ${st.datos.ape || ""}`.trim())}</b> · ${esc(st.datos.tel)}${st.datos.mail ? " · " + esc(st.datos.mail) : ""}</p>
         <div class="yo__acc"><button type="button" class="linkbtn" data-yo="editar">Cambiar mis datos</button><button type="button" class="linkbtn" data-yo="olvidar">No soy yo</button></div>
       </div>` : ""}
       <div class="campos" ${st.recordada && !st.editar ? "hidden" : ""}>
       ${campo("nom", "Nombre", 'type="text" autocomplete="given-name" required maxlength="60"', "Escribe tu nombre.")}
-      ${campo("ape", "Apellido", 'type="text" autocomplete="family-name" required maxlength="60"', "Escribe tu apellido.")}
+      ${campo("ape", "Apellido", 'type="text" autocomplete="family-name" maxlength="60"', "Escribe tu apellido.", true)}
       <div class="field">
         <label for="f-tel">WhatsApp</label>
         <div class="tel"><span aria-hidden="true">+1</span><input id="f-tel" name="tel" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="809 555 0101" maxlength="20" value="${esc(st.datos.tel || "")}" aria-describedby="e-tel" required></div>
@@ -719,7 +722,7 @@ const mensaje = d => {
     `• Día: ${fechaLarga(st.dia)}`,
     `• Hora: ${hora(st.hora)} (${duracion(durTotal())})`,
     `• Total: ${dinero(precioTotal())}`,
-    `• Nombre: ${d.nom} ${d.ape}`,
+    `• Nombre: ${`${d.nom} ${d.ape}`.trim()}`,
     `• WhatsApp: ${d.tel}`
   ];
   if (d.mail) lineas.push(`• Correo: ${d.mail}`);
@@ -747,7 +750,7 @@ const vistaListo = () => st.cita ? `
     <p class="muted">¿Necesitas cambiar o cancelar? Puedes hacerlo en <a href="#mis" data-ir-mis>Tus citas en este dispositivo</a>, más abajo, o escribiéndonos por WhatsApp.</p>
     <div class="btn-row">
       <a class="btn btn--cta" href="${esc(gcal())}" target="_blank" rel="noopener">Añadir a Google Calendar</a>
-      <a class="btn btn--ghost" href="${esc(wa(`Hola, ${CONFIG.nombre}. Acabo de reservar una cita para el ${fechaLarga(st.dia)} a las ${hora(st.hora)} a nombre de ${st.datos.nom} ${st.datos.ape}.`))}" target="_blank" rel="noopener">${ICON_WA}Escribir al salón</a>
+      <a class="btn btn--ghost" href="${esc(wa(`Hola, ${CONFIG.nombre}. Acabo de reservar una cita para el ${fechaLarga(st.dia)} a las ${hora(st.hora)} a nombre de ${`${st.datos.nom} ${st.datos.ape}`.trim()}.`))}" target="_blank" rel="noopener">${ICON_WA}Escribir al salón</a>
     </div>
     ${recap()}
     <button type="button" class="linkbtn" data-go="nueva">Reservar otra cita</button>
@@ -794,7 +797,7 @@ function guardarCita(extra) {
   const citas = store.get("hb-citas", []);
   const id = extra.id || `${key(st.dia)}-${st.hora}`;
   if (!citas.some(c => c.id === id)) {
-    citas.push(Object.assign({ id, fecha: key(st.dia), hora: st.hora, dur: durTotal(), servicios: elegidos().map(s => s.nombre), total: precioTotal(), nombre: `${st.datos.nom} ${st.datos.ape}`, estado: "pendiente" }, extra));
+    citas.push(Object.assign({ id, fecha: key(st.dia), hora: st.hora, dur: durTotal(), servicios: elegidos().map(s => s.nombre), total: precioTotal(), nombre: `${st.datos.nom} ${st.datos.ape}`.trim(), estado: "pendiente" }, extra));
     store.set("hb-citas", citas);
   }
 }
@@ -820,11 +823,11 @@ bk.addEventListener("click", e => {
     render({ foco: t.dataset.k });
     avisar(`${cap(fechaLarga(st.dia))}: ${horarios(libres(st.dia).length)}. Están a continuación.`);
   } else if (t.dataset.hora) {
-    st.hora = Number(t.dataset.hora); st.aviso = "";
+    st.hora = Number(t.dataset.hora); st.aviso = ""; contar("hora");
     render({ foco: t.dataset.k });
     avisar(`Hora elegida: ${hora(st.hora)}, pulsa Continuar.`);
   } else if (t.dataset.go === "datos") {
-    st.vista = "datos"; render({ titulo: true });
+    st.vista = "datos"; render({ titulo: true }); contar("datos");
   } else if (t.dataset.go === "elegir") {
     guardarDatos(); st.vista = "elegir"; render({ titulo: true });
   } else if (t.dataset.go === "nueva") {
@@ -848,7 +851,7 @@ bk.addEventListener("submit", async e => {
   e.preventDefault(); guardarDatos();
   const d = st.datos, dig = d.tel.replace(/\D/g, "");
   const ok = {
-    nom: d.nom.length >= 2, ape: d.ape.length >= 2,
+    nom: d.nom.length >= 2, ape: true,
     tel: dig.length === 10 || (dig.length === 11 && dig.startsWith("1")),
     mail: !d.mail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.mail), ok: d.ok
   };
@@ -1013,7 +1016,7 @@ function pintarHorario() {
 pintarServicios(); pintarHorario(); render(); pintarMis();
 if (API) {
   recargar().then(bien => {
-    if (!bien) carga = "error";
+    if (!bien) carga = "error"; else contar("visita");
     pintarServicios(); pintarHorario(); render(); pintarMis();
     actualizarMis(); cancelarDesdeEnlace();
   });

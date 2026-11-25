@@ -400,6 +400,37 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
 .btn--peligro:hover{background:var(--bad-bg)}
 .hist__acc{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px 10px}
 
+/* Mover cita */
+.cita__mover{grid-column:1 / -1;border-top:1px solid var(--line);padding-top:16px;display:grid;gap:12px}
+.mover__t{font-weight:600}
+.mover__campos{display:grid;grid-template-columns:repeat(2,minmax(0,220px));gap:14px}
+.mover__campos input,.mover__campos select{width:100%;min-height:48px;padding:10px 12px;font:16px/1.4 var(--font-text);color:var(--ink);background:var(--field-bg);border:1px solid var(--field-border);border-radius:var(--r-field)}
+.mover__campos [hidden]{display:none}
+.mover__acc{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+@media (max-width:760px){.mover__campos{grid-template-columns:minmax(0,1fr)}}
+
+/* Números */
+.num__rango{max-width:260px;margin-bottom:18px}
+.num__rango select{width:100%;min-height:48px;padding:10px 12px;font:16px/1.4 var(--font-text);color:var(--ink);background:var(--field-bg);border:1px solid var(--field-border);border-radius:var(--r-field)}
+.embudo{list-style:none;margin:0;padding:0;display:grid;gap:12px;max-width:820px}
+.embudo__paso{display:grid;grid-template-columns:220px minmax(0,1fr) 56px 170px;align-items:center;gap:14px}
+.embudo__barra{height:14px;background:var(--line);border-radius:999px;overflow:hidden}
+.embudo__barra i{display:block;height:100%;background:var(--cta-bg);border-radius:999px}
+.embudo__n{font-variant-numeric:tabular-nums;text-align:right;font-size:18px}
+.embudo__pct{font-size:14px}
+.num__consejo{max-width:720px;margin:20px 0 8px;line-height:1.55}
+.num__consejo:empty{display:none}
+.num__scroll{overflow-x:auto;max-width:900px}
+.num__tabla{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.num__tabla th,.num__tabla td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.num__tabla th:first-child,.num__tabla thead th{text-align:left}
+.num__tabla thead th{font-size:13px;color:var(--muted);font-weight:600;white-space:normal}
+@media (max-width:760px){
+  .embudo__paso{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}
+  .embudo__t{grid-column:1}.embudo__n{grid-column:2;grid-row:1}
+  .embudo__barra{grid-column:1 / -1}.embudo__pct{grid-column:1 / -1}
+}
+
 </style>
 </head>
 <body>
@@ -439,6 +470,7 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
       <button type="button" class="tab" role="tab" id="tab-agenda" aria-controls="p-agenda" aria-selected="true">Agenda</button>
       <button type="button" class="tab" role="tab" id="tab-recordar" aria-controls="p-recordar" aria-selected="false" tabindex="-1">Por recordar <span class="badge" id="badgeRec" hidden>0</span></button>
       <button type="button" class="tab" role="tab" id="tab-clientes" aria-controls="p-clientes" aria-selected="false" tabindex="-1">Clientes</button>
+      <button type="button" class="tab" role="tab" id="tab-numeros" aria-controls="p-numeros" aria-selected="false" tabindex="-1">Números</button>
       <button type="button" class="tab" role="tab" id="tab-dias" aria-controls="p-dias" aria-selected="false" tabindex="-1">Días y bloqueos</button>
       <button type="button" class="tab" role="tab" id="tab-nueva" aria-controls="p-nueva" aria-selected="false" tabindex="-1">Nueva cita</button>
     </div>
@@ -477,6 +509,17 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
       </div>
       <p id="cliResumen" class="muted" role="status"></p>
       <div class="lista" id="cliLista" aria-live="polite"></div>
+    </div>
+
+    <div class="tabpanel" id="p-numeros" role="tabpanel" aria-labelledby="tab-numeros" hidden>
+      <h2 class="panel__h">Cómo llegan las reservas</h2>
+      <p class="muted panel__p">Cuenta pasos, no personas: no guarda nombres ni teléfonos. Empezó a contar el 25 de noviembre de 2026.</p>
+      <div class="field num__rango"><label for="numRango">Periodo</label>
+        <select id="numRango"><option value="7">Últimos 7 días</option><option value="30" selected>Últimos 30 días</option><option value="90">Últimos 90 días</option></select></div>
+      <ol class="embudo" id="embudo" aria-live="polite"></ol>
+      <p id="numConsejo" class="num__consejo"></p>
+      <h3 class="panel__h3">Por día</h3>
+      <div class="num__scroll"><table class="num__tabla" id="numTabla"></table></div>
     </div>
 
     <div class="tabpanel" id="p-dias" role="tabpanel" aria-labelledby="tab-dias" hidden>
@@ -569,7 +612,8 @@ let semanas = {};
 let verCanceladas = false;
 let clientes = [];          // fichas de la hoja Clientes
 let cliPorTel = {};
-let recien = null;          // { id, tipo } para ofrecer el aviso por WhatsApp después de un cambio
+let recien = null;
+const movidas = {};          // id -> { fecha, inicio } de antes de mover          // { id, tipo } para ofrecer el aviso por WhatsApp después de un cambio
 const ETQ = { pendiente: "Pendiente", confirmada: "Confirmada", cancelada: "Cancelada", no_asistio: "No vino", completada: "Completada" };
 const ACTIVOS = ["pendiente", "confirmada"];
 
@@ -596,6 +640,7 @@ const msg = {
   confirmada: c => `Hola ${c.nombre}, tu cita en ${nombreSalon()} quedó confirmada: ${cuando(c)} (${c.servicios}). Te esperamos en ${(cfg && cfg.negocio.direccion) || "el salón"}.`,
   recordar: c => `Hola ${c.nombre}, te recordamos tu cita en ${nombreSalon()} el ${cuando(c)} (${c.servicios}). Por favor responde SÍ para confirmar. Si no confirmas, el espacio se libera para otra clienta.`,
   cancelada: c => `Hola ${c.nombre}, tu cita del ${cuando(c)} en ${nombreSalon()} quedó cancelada. Si quieres otra fecha, escríbenos por aquí.`,
+  movida: c => { const a = movidas[c.id]; return `Hola ${c.nombre}, cambiamos tu cita en ${nombreSalon()}: ahora es el ${cuando(c)} (${c.servicios}).${a ? ` Antes era el ${fechaLarga(deKey(a.fecha))} a las ${hora(toMin(a.inicio))}.` : ""} Si no te conviene, escríbenos por aquí.`; },
   cierre: c => `Hola ${c.nombre}, tuvimos un cambio de horario el ${fechaLarga(deKey(c.fecha))} y tu cita de las ${hora(toMin(c.inicio))} se ve afectada. ¿Te podemos dar otro día y hora?`
 };
 
@@ -643,6 +688,7 @@ function abrirTab(tab, enfocar) {
   if (id === "tab-recordar") pintarRecordar();
   if (id === "tab-dias") pintarExcepciones();
   if (id === "tab-clientes") cargarClientes().then(pintarClientes);
+  if (id === "tab-numeros") pintarNumeros();
   if (id === "tab-nueva") { refrescarCfg().then(horasLibres); }
 }
 tabs.forEach((t, i) => {
@@ -674,8 +720,8 @@ function acciones(c) {
   if (recien && recien.id === c.id && msg[recien.tipo] && c.telefono) {
     return `<span class="hecho">Listo.</span>${w(msg[recien.tipo](c), "Avisar por WhatsApp")}`;
   }
-  if (c.estado === "pendiente") return `<button type="button" class="btn btn--cta btn--sm" data-op="confirmada">Confirmar</button>${w(msg.recordar(c), "Recordar", `data-recordar="${esc(c.id)}"`)}${w("", "WhatsApp")}<button type="button" class="btn btn--ghost btn--sm btn--peligro" data-op="cancelar">Cancelar cita</button>`;
-  if (c.estado === "confirmada") return `<button type="button" class="btn btn--ghost btn--sm" data-op="completada">Completada</button><button type="button" class="btn btn--ghost btn--sm" data-op="no_asistio">No vino</button>${w("", "WhatsApp")}<button type="button" class="btn btn--ghost btn--sm btn--peligro" data-op="cancelar">Cancelar cita</button>`;
+  if (c.estado === "pendiente") return `<button type="button" class="btn btn--cta btn--sm" data-op="confirmada">Confirmar</button>${w(msg.recordar(c), "Recordar", `data-recordar="${esc(c.id)}"`)}${w("", "WhatsApp")}<button type="button" class="btn btn--ghost btn--sm" data-mover>Mover</button><button type="button" class="btn btn--ghost btn--sm btn--peligro" data-op="cancelar">Cancelar cita</button>`;
+  if (c.estado === "confirmada") return `<button type="button" class="btn btn--ghost btn--sm" data-op="completada">Completada</button><button type="button" class="btn btn--ghost btn--sm" data-op="no_asistio">No vino</button>${w("", "WhatsApp")}<button type="button" class="btn btn--ghost btn--sm" data-mover>Mover</button><button type="button" class="btn btn--ghost btn--sm btn--peligro" data-op="cancelar">Cancelar cita</button>`;
   if (c.estado === "cancelada") return `<button type="button" class="linkbtn" data-op="pendiente">Volver a activar</button>`;
   return `<button type="button" class="linkbtn" data-op="confirmada">Deshacer</button>`;
 }
@@ -730,6 +776,8 @@ $("#agendaLista").addEventListener("click", async e => {
   const id = art.dataset.id, c = citaPorId(id); if (!c) return;
   const rec = e.target.closest("[data-recordar]");
   if (rec) { api("recordatorio", { id, via: "WhatsApp" }).then(r => { if (r.ok) { c.recordatorio = r.recordatorio; pintarAgenda(false); pintarRecordar(); } }); return; }
+  if (e.target.closest("[data-mover]")) { abrirMover(art, c); return; }
+  if (e.target.closest("[data-mover-no]")) { pintarAgenda(false); return; }
   const b = e.target.closest("[data-op], [data-si], [data-no]"); if (!b) return;
   const acc = art.querySelector(".cita__acc");
   if (b.dataset.op === "cancelar") {
@@ -749,6 +797,86 @@ $("#agendaLista").addEventListener("click", async e => {
   avisar(`Cita de ${c.nombre}: ${ETQ[estado]}.`);
   $(`.cita[data-id="${CSS.escape(id)}"] .cita__acc a, .cita[data-id="${CSS.escape(id)}"] .cita__acc button`)?.focus();
 });
+
+/* ---------- Mover cita ---------- */
+function abrirMover(art, c) {
+  $$(".cita__mover").forEach(x => x.remove());
+  const id = c.id, dur = toMin(c.fin) - toMin(c.inicio), uid = id.replace(/[^\w-]/g, "");
+  art.insertAdjacentHTML("beforeend", `
+    <form class="cita__mover" novalidate>
+      <p class="mover__t">Mover la cita de ${esc(c.nombre)} · ahora: ${esc(cuando(c))}</p>
+      <div class="mover__campos">
+        <div class="field"><label for="mvF-${uid}">Nueva fecha</label><input type="date" id="mvF-${uid}" min="${key(hoy0())}" value="${esc(c.fecha)}" required></div>
+        <div class="field" data-libre><label for="mvH-${uid}">Hora libre</label><select id="mvH-${uid}"></select></div>
+        <div class="field" data-forzada hidden><label for="mvL-${uid}">Hora</label><input type="time" id="mvL-${uid}" step="900"></div>
+      </div>
+      <label class="switch"><input type="checkbox" data-forzar> Fuera de horario o encima de otra cita</label>
+      <p class="err" role="alert" hidden></p>
+      <div class="mover__acc"><button type="submit" class="btn btn--cta btn--sm">Mover cita</button><button type="button" class="linkbtn" data-mover-no>No mover</button></div>
+    </form>`);
+  const f = art.querySelector(".cita__mover"), fecha = f.querySelector('input[type="date"]'), sel = f.querySelector("select"), err = f.querySelector(".err");
+  const llenar = () => {
+    const out = libresEn(fecha.value, dur, c);
+    sel.innerHTML = out === null ? '<option value="">El salón está cerrado ese día</option>'
+      : out.length ? out.map(m => `<option value="${hhmm(m)}">${hora(m)}</option>`).join("") : '<option value="">No quedan horas libres ese día</option>';
+  };
+  llenar();
+  fecha.addEventListener("change", llenar);
+  f.querySelector("[data-forzar]").addEventListener("change", e => { f.querySelector("[data-libre]").hidden = e.target.checked; f.querySelector("[data-forzada]").hidden = !e.target.checked; });
+  f.addEventListener("submit", async e => {
+    e.preventDefault(); err.hidden = true;
+    const forzar = f.querySelector("[data-forzar]").checked, inicio = forzar ? f.querySelector('input[type="time"]').value : sel.value;
+    if (!fecha.value || !inicio) { err.textContent = !fecha.value ? "Elige la nueva fecha." : "Elige la nueva hora."; err.hidden = false; return; }
+    const btn = f.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = "Moviendo…";
+    const r = await api("mover", { id, fecha: fecha.value, inicio, forzar });
+    if (!r.ok) { btn.disabled = false; btn.textContent = "Mover cita"; err.textContent = r.mensaje; err.hidden = false; return; }
+    movidas[id] = r.antes;
+    recien = c.telefono ? { id, tipo: "movida" } : null;
+    semanas = {}; await refrescarCfg(); cargarClientes(); pintarRecordar();
+    dia = deKey(r.cita.fecha); await pintarAgenda(true);
+    avisar(`Cita de ${c.nombre} movida al ${cap(fechaLarga(dia))} a las ${hora(toMin(r.cita.inicio))}.`);
+    const nueva = $(`.cita[data-id="${CSS.escape(id)}"]`);
+    if (nueva) { nueva.scrollIntoView({ block: "center" }); nueva.querySelector(".cita__acc a, .cita__acc button")?.focus(); }
+  });
+  fecha.focus();
+}
+
+/* ---------- Números ---------- */
+const PASOS = [
+  ["visita", "Visitaron la página"], ["hora", "Eligieron una hora"], ["datos", "Llegaron a «Tus datos»"],
+  ["solicitudes", "Enviaron la solicitud"], ["confirmadas", "Confirmadas por el salón"]
+];
+const CONSEJOS = {
+  hora: "Muchas miran la página pero no eligen hora. Revisa que haya horarios libres en los días que más piden y que el servicio y el precio estén claros.",
+  datos: "Eligen hora pero no siguen al formulario. Puede que la hora elegida no les convenga al ver el resumen, o que algo distraiga antes de «Continuar».",
+  solicitudes: "Llegan al formulario y no lo envían. El formulario es lo que más frena: menos campos o un mensaje más claro pueden ayudar.",
+  confirmadas: "Llegan solicitudes que no se confirman. Responder más rápido por WhatsApp suele mejorar esta parte."
+};
+async function pintarNumeros() {
+  const n = Number($("#numRango").value), hasta = hoy0(), desde = new Date(hasta); desde.setDate(hasta.getDate() - n + 1);
+  const box = $("#embudo"); box.setAttribute("aria-busy", "true");
+  const r = await api("metricas", { desde: key(desde), hasta: key(hasta) });
+  box.removeAttribute("aria-busy");
+  if (!r.ok) { box.innerHTML = `<li class="err">${esc(r.mensaje)}</li>`; return; }
+  const tot = Object.fromEntries(PASOS.map(([k]) => [k, r.dias.reduce((a, d) => a + (d[k] || 0), 0)]));
+  const max = Math.max(1, ...PASOS.map(([k]) => tot[k]));
+  box.innerHTML = PASOS.map(([k, t], i) => {
+    const prev = i ? tot[PASOS[i - 1][0]] : 0, pct = i && prev ? Math.min(100, Math.round(100 * tot[k] / prev)) : null;
+    return `<li class="embudo__paso"><span class="embudo__t">${t}</span><span class="embudo__barra" aria-hidden="true"><i style="width:${tot[k] ? Math.max(2, Math.round(100 * tot[k] / max)) : 0}%"></i></span><b class="embudo__n">${tot[k]}</b><span class="muted embudo__pct">${pct === null ? "" : `${pct}% del paso anterior`}</span></li>`;
+  }).join("");
+  let peor = null;
+  for (let i = 1; i < PASOS.length; i++) {
+    const a = tot[PASOS[i - 1][0]], b = tot[PASOS[i][0]];
+    if (a >= 5 && (!peor || b / a < peor.r)) peor = { k: PASOS[i][0], r: b / a, de: PASOS[i - 1][1], a: PASOS[i][1] };
+  }
+  $("#numConsejo").innerHTML = tot.visita < 10
+    ? "Todavía hay pocos datos para sacar conclusiones. Vuelve a mirar cuando la página tenga más visitas."
+    : peor ? `<b>Donde más se pierden:</b> de «${esc(peor.de)}» a «${esc(peor.a)}» (sigue el ${Math.round(peor.r * 100)}%). ${esc(CONSEJOS[peor.k])}` : "";
+  const filas = r.dias.filter(d => PASOS.some(([k]) => d[k])).reverse();
+  $("#numTabla").innerHTML = filas.length ? `<thead><tr><th scope="col">Día</th>${PASOS.map(([, t]) => `<th scope="col">${t}</th>`).join("")}</tr></thead><tbody>${filas.map(d => `<tr><th scope="row">${esc(fechaCorta(d.fecha))}</th>${PASOS.map(([k]) => `<td>${d[k]}</td>`).join("")}</tr>`).join("")}</tbody>`
+    : '<tbody><tr><td class="vacio">Todavía no hay datos en este periodo.</td></tr></tbody>';
+}
+$("#numRango").addEventListener("change", pintarNumeros);
 
 /* ---------- Clientes ---------- */
 async function cargarClientes() {
@@ -821,10 +949,18 @@ $("#cliLista").addEventListener("click", async e => {
         <div><button type="submit" class="btn btn--ghost btn--sm">Guardar nota</button> <span class="hecho" hidden>Guardada</span></div>
       </form>
       <h3 class="panel__h3">Historial</h3>
-      <ul class="historial">${r.citas.map(c => `<li><span><b>${esc(cap(fechaLarga(deKey(c.fecha))))}, ${hora(toMin(c.inicio))}</b><br><span class="muted">${esc(c.servicios)} · ${dinero(c.total)}${c.notas ? " · " + esc(c.notas) : ""}</span></span><span class="hist__acc"><span class="tag tag--${esc(c.estado)}">${ETQ[c.estado] || esc(c.estado)}</span>${ACTIVOS.includes(c.estado) && c.fecha >= key(hoy0()) ? `<button type="button" class="btn btn--ghost btn--sm btn--peligro" data-hcancel="${esc(c.id)}" data-cuando="${esc(cuando(c))}">Cancelar cita</button>` : ""}</span></li>`).join("")}</ul>`;
+      <ul class="historial">${r.citas.map(c => `<li><span><b>${esc(cap(fechaLarga(deKey(c.fecha))))}, ${hora(toMin(c.inicio))}</b><br><span class="muted">${esc(c.servicios)} · ${dinero(c.total)}${c.notas ? " · " + esc(c.notas) : ""}</span></span><span class="hist__acc"><span class="tag tag--${esc(c.estado)}">${ETQ[c.estado] || esc(c.estado)}</span>${ACTIVOS.includes(c.estado) && c.fecha >= key(hoy0()) ? `<button type="button" class="btn btn--ghost btn--sm" data-hmover="${esc(c.id)}" data-fecha="${esc(c.fecha)}">Mover</button><button type="button" class="btn btn--ghost btn--sm btn--peligro" data-hcancel="${esc(c.id)}" data-cuando="${esc(cuando(c))}">Cancelar cita</button>` : ""}</span></li>`).join("")}</ul>`;
   }
 });
 $("#cliLista").addEventListener("click", async e => {
+  const mv = e.target.closest("[data-hmover]");
+  if (mv) {
+    abrirTab($("#tab-agenda"), false); dia = deKey(mv.dataset.fecha); recien = null;
+    await pintarAgenda(true);
+    const art = $(`.cita[data-id="${CSS.escape(mv.dataset.hmover)}"]`), c = citaPorId(mv.dataset.hmover);
+    if (art && c) { art.scrollIntoView({ block: "center" }); abrirMover(art, c); }
+    return;
+  }
   const b = e.target.closest("[data-hcancel], [data-hsi], [data-hno]"); if (!b) return;
   const art = b.closest(".cli"), tel = art.dataset.tel, x = cliPorTel[tel], acc = b.closest(".hist__acc");
   if (b.dataset.hcancel) {
@@ -936,6 +1072,20 @@ function prepararNueva() {
   horasLibres();
 }
 const elegidosNueva = () => $$('#nuevaServicios input:checked').map(i => cfg.servicios.find(s => s.id === i.value)).filter(Boolean);
+/** Horas de inicio libres para una cita de `dur` minutos el día f; `excluir` es la propia cita al moverla. */
+function libresEn(f, dur, excluir) {
+  const r = f && rangoDia(f);
+  if (!r) return null;
+  let busy = ((cfg.ocupado || {})[f] || []).map(x => [toMin(x[0]), toMin(x[1])]);
+  if (excluir && excluir.fecha === f) {
+    const i = busy.findIndex(([a, b]) => a === toMin(excluir.inicio) && b === toMin(excluir.fin));
+    if (i >= 0) busy.splice(i, 1);
+  }
+  const ahora = new Date(), desde = f === key(hoy0()) ? ahora.getHours() * 60 + ahora.getMinutes() : -1;
+  const paso = (cfg.reglas && cfg.reglas.paso) || 30, out = [];
+  for (let m = toMin(r[0]); m + dur <= toMin(r[1]); m += paso) if (m >= desde && !busy.some(([a, b]) => m < b && m + dur > a)) out.push(m);
+  return out;
+}
 function horasLibres() {
   if (!cfg) return;
   const f = $("#nuevaFecha").value, dur = elegidosNueva().reduce((a, s) => a + s.min, 0), sel = $("#nuevaHora");
