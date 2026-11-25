@@ -246,6 +246,14 @@ select{width:100%;min-height:48px;padding:12px 14px;font:16px/1.4 var(--font-tex
 select:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px var(--ring)}
 .nw{white-space:nowrap}
 
+/* Clienta que vuelve: sus datos guardados en este teléfono */
+.campos{display:contents}
+.campos[hidden]{display:none}
+.yo{background:var(--recap-bg);border:1px solid var(--recap-border);border-radius:var(--r-inner);padding:16px 20px;display:grid;gap:4px}
+.yo__h{font:600 18px/1.3 var(--font-text)}
+.yo__acc{display:flex;flex-wrap:wrap;gap:0 22px}
+.check .opt{color:var(--muted);font-size:14px}
+
 /* Estilo 1 · crema y oro (referencia: Oura en awesome-design-md). Tokens de DESIGN.md */
 :root{
   --bg:#f7f1e8; --nav-bg:#f7f1e8; --card-bg:#ffffff; --card-border:#ece5d8; --field-bg:#ffffff;
@@ -353,6 +361,34 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
 
 #salir{margin-left:auto}
 
+/* Clientes */
+.tag--nueva{background:var(--tag-bg);color:var(--tag-ink)}
+.tag--fiel{background:var(--ok-bg);color:var(--ok-ink)}
+.cita__nombre .tag{margin-left:6px}
+.cli__barra{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:16px;align-items:end;margin-bottom:14px;max-width:900px}
+.cli__barra input:not([type=checkbox]),.cli__barra select{width:100%;min-height:48px;padding:12px 14px;font:16px/1.4 var(--font-text);color:var(--ink);background:var(--field-bg);border:1px solid var(--field-border);border-radius:var(--r-field)}
+.cli{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 24px;align-items:start;background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:18px 20px}
+.cli__datos{margin-top:6px;font-weight:500;font-variant-numeric:tabular-nums}
+.cli__detalle{grid-column:1 / -1;border-top:1px solid var(--line);padding-top:16px}
+.cli__detalle[hidden]{display:none}
+.cli__nota{display:grid;gap:8px;max-width:620px}
+.cli__nota label{font-weight:600}
+.cli__nota textarea{width:100%;padding:12px 14px;font:16px/1.4 var(--font-text);color:var(--ink);background:var(--field-bg);border:1px solid var(--field-border);border-radius:var(--r-field);resize:vertical}
+.cli__detalle .panel__h3{margin:22px 0 10px}
+.historial{list-style:none;margin:0;padding:0;display:grid;gap:0;max-width:720px}
+.historial li{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid var(--line)}
+.historial li:last-child{border-bottom:0}
+.cli__info{margin-top:6px;font-size:14px}
+.cli__info:empty{display:none}
+@media (max-width:760px){
+  .cli__barra{grid-template-columns:minmax(0,1fr)}
+  .cli{grid-template-columns:minmax(0,1fr)}
+  .cli .cita__acc{justify-content:flex-start;max-width:none}
+}
+.btn--peligro{color:var(--bad-ink);border-color:currentColor}
+.btn--peligro:hover{background:var(--bad-bg)}
+.hist__acc{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px 10px}
+
 </style>
 </head>
 <body>
@@ -391,6 +427,7 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
     <div class="tabs" role="tablist" aria-label="Secciones del panel">
       <button type="button" class="tab" role="tab" id="tab-agenda" aria-controls="p-agenda" aria-selected="true">Agenda</button>
       <button type="button" class="tab" role="tab" id="tab-recordar" aria-controls="p-recordar" aria-selected="false" tabindex="-1">Por recordar <span class="badge" id="badgeRec" hidden>0</span></button>
+      <button type="button" class="tab" role="tab" id="tab-clientes" aria-controls="p-clientes" aria-selected="false" tabindex="-1">Clientes</button>
       <button type="button" class="tab" role="tab" id="tab-dias" aria-controls="p-dias" aria-selected="false" tabindex="-1">Días y bloqueos</button>
       <button type="button" class="tab" role="tab" id="tab-nueva" aria-controls="p-nueva" aria-selected="false" tabindex="-1">Nueva cita</button>
     </div>
@@ -416,6 +453,19 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
       <h2 class="panel__h">Recordatorios de las próximas 48 horas</h2>
       <p class="muted panel__p">Cada botón abre WhatsApp con el recordatorio ya escrito y la marca como enviada. Las clientas que dejaron correo también lo reciben por correo automáticamente.</p>
       <div class="lista" id="recordarLista"></div>
+    </div>
+
+    <div class="tabpanel" id="p-clientes" role="tabpanel" aria-labelledby="tab-clientes" hidden>
+      <h2 class="panel__h">Clientes</h2>
+      <p class="muted panel__p">Se llena sola con cada cita, una ficha por número de WhatsApp. También está en la hoja de Google, pestaña Clientes.</p>
+      <div class="cli__barra">
+        <div class="field cli__buscar"><label for="cliBuscar">Buscar por nombre o teléfono</label><input id="cliBuscar" type="search" autocomplete="off" placeholder="María o 809 555 0101"></div>
+        <div class="field"><label for="cliOrden">Ordenar</label>
+          <select id="cliOrden"><option value="reciente">Más recientes</option><option value="visitas">Más visitas</option><option value="gastado">Más gastado</option><option value="nombre">Nombre</option><option value="ausentes">Hace tiempo que no vienen</option></select></div>
+        <label class="switch"><input type="checkbox" id="cliPromo"> Solo las que aceptan ofertas</label>
+      </div>
+      <p id="cliResumen" class="muted" role="status"></p>
+      <div class="lista" id="cliLista" aria-live="polite"></div>
     </div>
 
     <div class="tabpanel" id="p-dias" role="tabpanel" aria-labelledby="tab-dias" hidden>
@@ -462,7 +512,7 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
           <div class="field"><label for="nuevaApe">Apellido <span class="opt">opcional</span></label><input id="nuevaApe" type="text" maxlength="60"></div>
         </div>
         <div class="fila2">
-          <div class="field"><label for="nuevaTel">WhatsApp <span class="opt">opcional</span></label><input id="nuevaTel" type="tel" inputmode="tel" maxlength="20" placeholder="809 555 0101"></div>
+          <div class="field"><label for="nuevaTel">WhatsApp <span class="opt">opcional</span></label><input id="nuevaTel" type="tel" inputmode="tel" maxlength="20" placeholder="809 555 0101" aria-describedby="nuevaCliInfo"><p class="muted cli__info" id="nuevaCliInfo" role="status"></p></div>
           <div class="field"><label for="nuevaNotas">Notas <span class="opt">opcional</span></label><input id="nuevaNotas" type="text" maxlength="500"></div>
         </div>
         <p class="err" id="nuevaErr" role="alert" hidden></p>
@@ -506,6 +556,8 @@ let cfg = null;
 let dia = hoy0();
 let semanas = {};
 let verCanceladas = false;
+let clientes = [];          // fichas de la hoja Clientes
+let cliPorTel = {};
 let recien = null;          // { id, tipo } para ofrecer el aviso por WhatsApp después de un cambio
 const ETQ = { pendiente: "Pendiente", confirmada: "Confirmada", cancelada: "Cancelada", no_asistio: "No vino", completada: "Completada" };
 const ACTIVOS = ["pendiente", "confirmada"];
@@ -563,6 +615,7 @@ async function iniciar() {
   cfg = r;
   $("#app").hidden = false; $("#salir").hidden = false;
   prepararNueva();
+  await cargarClientes();
   await pintarAgenda(true);
   pintarRecordar();
   $("#diaTitulo").focus();
@@ -578,6 +631,7 @@ function abrirTab(tab, enfocar) {
   if (id === "tab-agenda") pintarAgenda(true);
   if (id === "tab-recordar") pintarRecordar();
   if (id === "tab-dias") pintarExcepciones();
+  if (id === "tab-clientes") cargarClientes().then(pintarClientes);
   if (id === "tab-nueva") { refrescarCfg().then(horasLibres); }
 }
 tabs.forEach((t, i) => {
@@ -609,8 +663,8 @@ function acciones(c) {
   if (recien && recien.id === c.id && msg[recien.tipo] && c.telefono) {
     return `<span class="hecho">Listo.</span>${w(msg[recien.tipo](c), "Avisar por WhatsApp")}`;
   }
-  if (c.estado === "pendiente") return `<button type="button" class="btn btn--cta btn--sm" data-op="confirmada">Confirmar</button>${w(msg.recordar(c), "Recordar", `data-recordar="${esc(c.id)}"`)}${w("", "WhatsApp")}<button type="button" class="linkbtn" data-op="cancelar">Cancelar</button>`;
-  if (c.estado === "confirmada") return `<button type="button" class="btn btn--ghost btn--sm" data-op="completada">Completada</button><button type="button" class="btn btn--ghost btn--sm" data-op="no_asistio">No vino</button>${w("", "WhatsApp")}<button type="button" class="linkbtn" data-op="cancelar">Cancelar</button>`;
+  if (c.estado === "pendiente") return `<button type="button" class="btn btn--cta btn--sm" data-op="confirmada">Confirmar</button>${w(msg.recordar(c), "Recordar", `data-recordar="${esc(c.id)}"`)}${w("", "WhatsApp")}<button type="button" class="btn btn--ghost btn--sm btn--peligro" data-op="cancelar">Cancelar cita</button>`;
+  if (c.estado === "confirmada") return `<button type="button" class="btn btn--ghost btn--sm" data-op="completada">Completada</button><button type="button" class="btn btn--ghost btn--sm" data-op="no_asistio">No vino</button>${w("", "WhatsApp")}<button type="button" class="btn btn--ghost btn--sm btn--peligro" data-op="cancelar">Cancelar cita</button>`;
   if (c.estado === "cancelada") return `<button type="button" class="linkbtn" data-op="pendiente">Volver a activar</button>`;
   return `<button type="button" class="linkbtn" data-op="confirmada">Deshacer</button>`;
 }
@@ -618,7 +672,7 @@ const tarjeta = c => `
   <article class="cita cita--${esc(c.estado)}" data-id="${esc(c.id)}">
     <div class="cita__hora"><b>${hora(toMin(c.inicio))}</b><span>a ${hora(toMin(c.fin))}</span></div>
     <div class="cita__info">
-      <p class="cita__nombre">${esc(c.nombre)} ${esc(c.apellido)} <span class="tag tag--${esc(c.estado)}">${ETQ[c.estado] || esc(c.estado)}</span></p>
+      <p class="cita__nombre">${esc(c.nombre)} ${esc(c.apellido)} <span class="tag tag--${esc(c.estado)}">${ETQ[c.estado] || esc(c.estado)}</span>${etiquetaCliente(c.telefono)}</p>
       <p class="muted">${esc(c.servicios)} · ${dinero(c.total)}${c.telefono ? " · " + esc(telBonito(c.telefono)) : ""}${c.origen === "panel" ? " · anotada en el panel" : ""}</p>
       ${c.notas ? `<p class="cita__notas">${esc(c.notas)}</p>` : ""}
       ${c.recordatorio ? `<p class="muted cita__rec">Recordatorio: ${esc(c.recordatorio)}</p>` : ""}
@@ -641,7 +695,7 @@ async function pintarAgenda(forzar) {
   $("#diaTitulo").textContent = cap(fechaLarga(dia)) + (key(dia) === key(hoy0()) ? " · hoy" : "");
   $("#diaInput").value = key(dia);
   const delDia = citas.filter(c => c.fecha === key(dia));
-  const visibles = delDia.filter(c => verCanceladas || c.estado !== "cancelada");
+  const visibles = delDia.filter(c => verCanceladas || c.estado !== "cancelada" || (recien && recien.id === c.id));
   const activas = delDia.filter(c => ACTIVOS.includes(c.estado) || c.estado === "completada");
   const r = rangoDia(key(dia));
   $("#diaResumen").textContent = (r ? `Abierto de ${hora(toMin(r[0]))} a ${hora(toMin(r[1]))}` : "Cerrado") +
@@ -679,11 +733,123 @@ $("#agendaLista").addEventListener("click", async e => {
   if (!r.ok) { b.disabled = false; avisar(r.mensaje); acc.insertAdjacentHTML("afterbegin", `<span class="err">${esc(r.mensaje)}</span>`); return; }
   c.estado = estado;
   recien = (estado === "confirmada" || estado === "cancelada") && c.telefono ? { id, tipo: estado } : null;
-  await refrescarCfg();
+  await refrescarCfg(); cargarClientes();
   pintarAgenda(false); pintarRecordar();
   avisar(`Cita de ${c.nombre}: ${ETQ[estado]}.`);
   $(`.cita[data-id="${CSS.escape(id)}"] .cita__acc a, .cita[data-id="${CSS.escape(id)}"] .cita__acc button`)?.focus();
 });
+
+/* ---------- Clientes ---------- */
+async function cargarClientes() {
+  const r = await api("clientes");
+  if (!r.ok) return;
+  clientes = r.clientes; cliPorTel = Object.fromEntries(clientes.map(x => [x.telefono, x]));
+}
+function etiquetaCliente(tel) {
+  const x = cliPorTel[telDig(tel).slice(-10)];
+  if (!x) return "";
+  if (!x.visitas) return ' <span class="tag tag--nueva">Primera vez</span>';
+  return ` <span class="tag tag--fiel">${x.visitas} ${x.visitas === 1 ? "visita" : "visitas"}</span>`;
+}
+const fechaCorta = f => { if (!f) return ""; const d = deKey(String(f).slice(0, 10)); return `${d.getDate()} ${MESES[d.getMonth()].slice(0, 3)} ${d.getFullYear()}`; };
+const normal = s => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+function pintarClientes() {
+  const q = normal($("#cliBuscar").value.trim()), qd = telDig($("#cliBuscar").value), orden = $("#cliOrden").value, soloPromo = $("#cliPromo").checked;
+  let lista = clientes.filter(x => (!soloPromo || x.promociones) &&
+    (!q || normal(`${x.nombre} ${x.apellido}`).includes(q) || (qd.length >= 3 && x.telefono.includes(qd))));
+  const porFecha = x => String(x.proxima || x.ultima || x.alta || "");
+  const cmp = {
+    reciente: (a, b) => porFecha(b).localeCompare(porFecha(a)),
+    visitas: (a, b) => b.visitas - a.visitas || b.gastado - a.gastado,
+    gastado: (a, b) => b.gastado - a.gastado,
+    nombre: (a, b) => normal(a.nombre + a.apellido).localeCompare(normal(b.nombre + b.apellido)),
+    ausentes: (a, b) => String(a.ultima || "9999").localeCompare(String(b.ultima || "9999"))
+  }[orden];
+  if (orden === "ausentes") lista = lista.filter(x => x.visitas && !x.proxima);
+  lista.sort(cmp);
+  const total = clientes.length, promo = clientes.filter(x => x.promociones).length;
+  $("#cliResumen").textContent = `${total} ${total === 1 ? "clienta" : "clientas"} · ${promo} aceptan ofertas por WhatsApp` + (lista.length !== total ? ` · mostrando ${lista.length}` : "");
+  $("#cliLista").innerHTML = lista.length ? lista.slice(0, 200).map(x => `
+    <article class="cli" data-tel="${esc(x.telefono)}">
+      <div class="cli__info">
+        <p class="cita__nombre">${esc(x.nombre)} ${esc(x.apellido)}${x.promociones ? ' <span class="tag tag--fiel">Acepta ofertas</span>' : ""}${!x.visitas ? ' <span class="tag tag--nueva">Sin visitas aún</span>' : ""}</p>
+        <p class="muted">${esc(telBonito(x.telefono))}${x.correo ? " · " + esc(x.correo) : ""}</p>
+        <p class="cli__datos">${x.visitas} ${x.visitas === 1 ? "visita" : "visitas"} · ${dinero(x.gastado)} · ${x.citas} ${x.citas === 1 ? "cita" : "citas"}${x.canceladas ? ` · ${x.canceladas} ${x.canceladas === 1 ? "cancelada" : "canceladas"}` : ""}${x.noVino ? ` · no vino ${x.noVino}` : ""}</p>
+        <p class="muted">${x.ultima ? "Última visita: " + esc(fechaCorta(x.ultima)) : "Primera cita: " + esc(fechaCorta(x.primera))}${x.proxima ? " · Próxima: " + esc(fechaCorta(x.proxima)) + " " + hora(toMin(String(x.proxima).slice(11))) : ""}</p>
+        ${x.notas ? `<p class="cita__notas">${esc(x.notas)}</p>` : ""}
+      </div>
+      <div class="cita__acc">
+        <a class="btn btn--ghost btn--sm" href="${esc(waLink(x.telefono, ""))}" target="_blank" rel="noopener">WhatsApp</a>
+        <button type="button" class="btn btn--ghost btn--sm" data-cli="cita">Nueva cita</button>
+        <button type="button" class="linkbtn" data-cli="ver" aria-expanded="false">Historial y notas</button>
+      </div>
+      <div class="cli__detalle" hidden></div>
+    </article>`).join("") : `<p class="vacio">${total ? "Ninguna clienta coincide." : "Todavía no hay clientas. Aparecen aquí con su primera cita."}</p>`;
+}
+["#cliBuscar", "#cliOrden", "#cliPromo"].forEach(s => $(s).addEventListener("input", pintarClientes));
+$("#cliOrden").addEventListener("change", pintarClientes); $("#cliPromo").addEventListener("change", pintarClientes);
+$("#cliLista").addEventListener("click", async e => {
+  const art = e.target.closest(".cli"); if (!art) return;
+  const tel = art.dataset.tel, x = cliPorTel[tel], b = e.target.closest("[data-cli]"); if (!b) return;
+  if (b.dataset.cli === "cita") {
+    abrirTab($("#tab-nueva"), false);
+    $("#nuevaTel").value = telBonito(tel); $("#nuevaNom").value = x.nombre || ""; $("#nuevaApe").value = x.apellido || ""; infoCliente();
+    $("#nuevaFecha").focus(); return;
+  }
+  if (b.dataset.cli === "ver") {
+    const det = art.querySelector(".cli__detalle"), abierto = !det.hidden;
+    det.hidden = abierto; b.setAttribute("aria-expanded", String(!abierto));
+    if (abierto) return;
+    det.innerHTML = '<p class="muted">Cargando…</p>';
+    const r = await api("cliente", { telefono: tel });
+    if (!r.ok) { det.innerHTML = `<p class="err">${esc(r.mensaje)}</p>`; return; }
+    det.innerHTML = `
+      <form class="cli__nota" data-nota>
+        <label for="nota-${esc(tel)}">Notas del salón <span class="opt">solo las ve el salón</span></label>
+        <textarea id="nota-${esc(tel)}" rows="2" maxlength="500" placeholder="Por ejemplo: alérgica al tinte, prefiere capas">${esc(r.cliente.notas || "")}</textarea>
+        <div><button type="submit" class="btn btn--ghost btn--sm">Guardar nota</button> <span class="hecho" hidden>Guardada</span></div>
+      </form>
+      <h3 class="panel__h3">Historial</h3>
+      <ul class="historial">${r.citas.map(c => `<li><span><b>${esc(cap(fechaLarga(deKey(c.fecha))))}, ${hora(toMin(c.inicio))}</b><br><span class="muted">${esc(c.servicios)} · ${dinero(c.total)}${c.notas ? " · " + esc(c.notas) : ""}</span></span><span class="hist__acc"><span class="tag tag--${esc(c.estado)}">${ETQ[c.estado] || esc(c.estado)}</span>${ACTIVOS.includes(c.estado) && c.fecha >= key(hoy0()) ? `<button type="button" class="btn btn--ghost btn--sm btn--peligro" data-hcancel="${esc(c.id)}" data-cuando="${esc(cuando(c))}">Cancelar cita</button>` : ""}</span></li>`).join("")}</ul>`;
+  }
+});
+$("#cliLista").addEventListener("click", async e => {
+  const b = e.target.closest("[data-hcancel], [data-hsi], [data-hno]"); if (!b) return;
+  const art = b.closest(".cli"), tel = art.dataset.tel, x = cliPorTel[tel], acc = b.closest(".hist__acc");
+  if (b.dataset.hcancel) {
+    acc.dataset.html = acc.innerHTML;
+    acc.innerHTML = `<span>¿Cancelar esta cita?</span><button type="button" class="btn btn--ghost btn--sm btn--peligro" data-hsi="${esc(b.dataset.hcancel)}" data-cuando="${esc(b.dataset.cuando)}">Sí, cancelar</button><button type="button" class="linkbtn" data-hno>No</button>`;
+    acc.querySelector("[data-hsi]").focus(); return;
+  }
+  if ("hno" in b.dataset) { acc.innerHTML = acc.dataset.html; return; }
+  b.disabled = true;
+  const r = await api("estado", { id: b.dataset.hsi, estado: "cancelada" });
+  if (!r.ok) { b.disabled = false; acc.insertAdjacentHTML("afterbegin", `<span class="err">${esc(r.mensaje)}</span>`); return; }
+  const aviso = `Hola ${x.nombre}, tu cita del ${b.dataset.cuando} en ${nombreSalon()} quedó cancelada. Si quieres otra fecha, escríbenos por aquí.`;
+  acc.innerHTML = `<span class="tag tag--cancelada">Cancelada</span><a class="btn btn--ghost btn--sm" href="${esc(waLink(tel, aviso))}" target="_blank" rel="noopener">Avisar por WhatsApp</a>`;
+  acc.querySelector("a").focus();
+  semanas = {}; await refrescarCfg(); cargarClientes();
+  avisar("Cita cancelada. Puedes avisarle por WhatsApp.");
+});
+$("#cliLista").addEventListener("submit", async e => {
+  const f = e.target.closest("[data-nota]"); if (!f) return;
+  e.preventDefault();
+  const tel = f.closest(".cli").dataset.tel, nota = f.querySelector("textarea").value, btn = f.querySelector("button"), ok = f.querySelector(".hecho");
+  btn.disabled = true;
+  const r = await api("nota_cliente", { telefono: tel, nota });
+  btn.disabled = false;
+  if (!r.ok) { avisar(r.mensaje); return; }
+  cliPorTel[tel].notas = r.nota; ok.hidden = false; avisar("Nota guardada.");
+  setTimeout(() => { ok.hidden = true; }, 2500);
+});
+function infoCliente() {
+  const x = cliPorTel[telDig($("#nuevaTel").value).slice(-10)], info = $("#nuevaCliInfo");
+  if (!x) { info.textContent = ""; return; }
+  info.textContent = `Clienta conocida: ${x.nombre} ${x.apellido} · ${x.visitas} ${x.visitas === 1 ? "visita" : "visitas"}${x.notas ? " · Nota: " + x.notas : ""}`;
+  if (!$("#nuevaNom").value.trim()) $("#nuevaNom").value = x.nombre || "";
+  if (!$("#nuevaApe").value.trim()) $("#nuevaApe").value = x.apellido || "";
+}
+$("#nuevaTel").addEventListener("input", infoCliente);
 
 /* ---------- Por recordar ---------- */
 const absMs = c => { const d = deKey(c.fecha); d.setMinutes(toMin(c.inicio)); return d.getTime(); };
@@ -796,7 +962,8 @@ $("#nuevaForm").addEventListener("submit", async e => {
   $("#nuevaResultado").innerHTML = `<p><b>Cita anotada:</b> ${esc(nombre)}, ${esc(cuando(c))}.</p>` +
     (tel ? `<p><a class="btn btn--ghost btn--sm" href="${esc(waLink(tel, msg.confirmada(c)))}" target="_blank" rel="noopener">Avisar por WhatsApp</a></p>` : "");
   ["#nuevaNom", "#nuevaApe", "#nuevaTel", "#nuevaNotas"].forEach(s => { $(s).value = ""; });
-  semanas = {}; await refrescarCfg(); horasLibres();
+  $("#nuevaCliInfo").textContent = "";
+  semanas = {}; await refrescarCfg(); horasLibres(); cargarClientes();
   avisar("Cita anotada.");
 });
 
