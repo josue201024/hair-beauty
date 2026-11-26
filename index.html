@@ -58,7 +58,7 @@ p{margin:0}
 .nav__name small{display:block;margin-top:3px;font:500 11px/1.2 var(--font-text);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .nav__links{display:flex;gap:28px;margin-left:auto}
 .nav__links a{font:500 15px var(--font-text);text-decoration:none;padding:12px 0;letter-spacing:var(--nav-tracking);text-transform:var(--nav-case);border-bottom:1px solid transparent}
-.nav__links a:hover{border-bottom-color:currentColor}
+.nav__links a:not(.btn):hover{border-bottom-color:transparent}
 
 /* Encabezados */
 h1,h2,.listo__t{font-family:var(--font-display);font-weight:var(--display-weight);text-transform:var(--display-case);letter-spacing:var(--display-tracking);margin:0;text-wrap:balance}
@@ -281,7 +281,7 @@ select:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px var(--rin
   --focus:#0e4a36; --ring:rgba(230,212,110,.6); --link-line:#c9983b;
   --cta-bg:#0e4a36; --cta-ink:#ffffff; --cta-hover:#0a3829; --press:translateY(1px);
   --ghost-border:#4a4741; --ghost-hover:#efe7da; --disabled-bg:#e4ddd1; --disabled-ink:#857f75;
-  --sel-bg:#0e4a36; --sel-ink:#ffffff; --done-bg:#c9983b; --done-ink:#1c1b1a;
+  --gold:#c9983b; --sel-bg:#0e4a36; --sel-ink:#ffffff; --done-bg:#c9983b; --done-ink:#1c1b1a;
   --day-bg:#ffffff; --day-border:#d6cfc3; --off-ink:#aaa39a; --off-swatch:#ebe5db; --today:#c9983b;
   --eyebrow:#7a5c14; --recap-bg:#f7f1e8; --recap-border:transparent; --tag-bg:#f1e4c3; --tag-ink:#5a4410;
   --open-dot:#2e6b3a; --closed-dot:#b42318; --error:#b42318;
@@ -309,6 +309,126 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
   .hero__grid{grid-template-columns:minmax(0,1fr)}
   .hero__art{aspect-ratio:auto;height:auto;padding:28px;display:flex;justify-content:center;align-items:center}
   .hero__art img{width:auto;height:clamp(180px,48vw,300px);max-width:100%;object-fit:contain}
+}
+
+/* ===== Movimiento y acabados =====
+   Curvas: entrar con desaceleración suave, nunca rebotes largos. Todo se apaga con
+   "reducir movimiento" del teléfono o la computadora (al final del archivo). */
+:root{
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-io:cubic-bezier(.65,0,.35,1);
+  --t-fast:.16s; --t-med:.32s; --t-slow:.6s;
+}
+
+@keyframes subir{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes aparecer{from{opacity:0}to{opacity:1}}
+@keyframes desdeDer{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes desdeIzq{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@keyframes crecer{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes latido{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes barraSube{from{transform:translateY(100%);opacity:0}to{transform:none;opacity:1}}
+@keyframes trazo{to{stroke-dashoffset:0}}
+@keyframes brillo{0%{transform:translateX(-120%) skewX(-18deg)}100%{transform:translateX(220%) skewX(-18deg)}}
+@keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ---------- Portada ---------- */
+.hero__text > *{animation:subir var(--t-slow) var(--ease-out) both}
+.hero__text > :nth-child(1){animation-delay:.05s}
+.hero__text > :nth-child(2){animation-delay:.12s}
+.hero__text > :nth-child(3){animation-delay:.2s}
+.hero__text > :nth-child(4){animation-delay:.28s}
+.hero__text > :nth-child(5){animation-delay:.36s}
+.hero__art{
+  position:relative;overflow:hidden;isolation:isolate;
+  background:radial-gradient(120% 85% at 72% 18%,#1d5c45 0%,#0f3d2e 52%,#0a2c21 100%);
+  box-shadow:inset 0 0 0 1px rgba(221,170,97,.28),0 30px 60px -30px rgba(15,61,46,.55);
+  animation:crecer .9s var(--ease-out) .1s both;
+}
+/* un destello dorado que cruza una vez al abrir */
+.hero__art::after{content:"";position:absolute;inset:-10% auto -10% 0;width:38%;z-index:1;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,236,190,.16),transparent);
+  transform:translateX(-120%) skewX(-18deg);animation:brillo 1.6s var(--ease-io) .9s 1 both}
+.hero__art img{position:relative;z-index:2;filter:drop-shadow(0 14px 28px rgba(0,0,0,.28));animation:flotar 7s ease-in-out 1.6s infinite}
+
+/* ---------- Menú ---------- */
+.nav{transition:box-shadow var(--t-med) var(--ease-out),background-color var(--t-med)}
+.nav.is-scrolled{box-shadow:0 10px 30px -18px rgba(28,27,26,.35)}
+.nav__links a{position:relative}
+.nav__links a:not(.btn)::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform var(--t-med) var(--ease-out)}
+.nav__links a:not(.btn):hover::after{transform:scaleX(1)}
+
+/* ---------- Botones y opciones ---------- */
+.btn{transition:background-color var(--t-fast),border-color var(--t-fast),color var(--t-fast),transform var(--t-fast) var(--ease-out),box-shadow var(--t-med) var(--ease-out)}
+.btn--cta:hover{transform:translateY(-1px);box-shadow:0 12px 24px -12px rgba(14,74,54,.6)}
+.btn--ghost:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.98);box-shadow:none}
+.day,.time,.svc{transition:background-color var(--t-fast),border-color var(--t-fast),color var(--t-fast),transform var(--t-fast) var(--ease-out),box-shadow var(--t-fast)}
+.time:not([aria-pressed=true]):hover{border-color:var(--gold);transform:translateY(-1px)}
+.day:not(:disabled):not([aria-pressed=true]):hover{border-color:var(--gold)}
+.day:active:not(:disabled),.time:active{transform:scale(.94)}
+.day[aria-pressed=true],.time[aria-pressed=true]{animation:latido .28s var(--ease-out)}
+.bk{box-shadow:0 1px 0 rgba(28,27,26,.03),0 24px 60px -36px rgba(28,27,26,.28)}
+
+/* ---------- Reservar: cada cambio anima solo lo que cambió ---------- */
+/* paso nuevo (Tus datos, Listo, volver) */
+.bk[data-anim=vista] > :not(.bk__top){animation:subir .42s var(--ease-out) both}
+.bk[data-anim=vista] .bk__steps li.is-on::before{animation:latido .4s var(--ease-out) .1s}
+.bk[data-anim=vista] .field,.bk[data-anim=vista] .check{animation:subir .4s var(--ease-out) both}
+.bk[data-anim=vista] .field:nth-child(2){animation-delay:.04s}
+.bk[data-anim=vista] .field:nth-child(3){animation-delay:.08s}
+.bk[data-anim=vista] .field:nth-child(4){animation-delay:.12s}
+/* cambio de mes: el calendario se desliza en la dirección de la flecha */
+.bk[data-anim=mes-sig] .cal__grid{animation:desdeDer var(--t-med) var(--ease-out) both}
+.bk[data-anim=mes-ant] .cal__grid{animation:desdeIzq var(--t-med) var(--ease-out) both}
+.bk[data-anim^=mes] .cal__mes{animation:aparecer var(--t-med) both}
+/* día nuevo: las horas entran en cascada */
+.bk[data-anim=dia] #timesH,.bk[data-anim=mes-sig] #timesH,.bk[data-anim=mes-ant] #timesH{animation:aparecer var(--t-med) both}
+.bk[data-anim=dia] .time,.bk[data-anim=vista] .time{animation:subir .34s var(--ease-out) both;animation-delay:calc(min(var(--i,0),12) * 18ms)}
+/* primera hora elegida: aparece el resumen con Continuar */
+.bk[data-anim=hora1] .bk__bar{animation:subir var(--t-med) var(--ease-out) both}
+.bk[data-anim=hora1] .bk__bar.is-lista .btn{animation:latido .45s var(--ease-out) .12s}
+@media (max-width:760px){.bk[data-anim=hora1] .bk__bar.is-lista{animation:barraSube .36s var(--ease-out) both}}
+/* indicador de pasos: línea entre círculos */
+.bk__steps li + li{position:relative}
+@media (min-width:761px){.bk__steps li + li::after{content:"";position:absolute;left:-14px;top:50%;width:10px;height:1px;background:var(--field-border)}}
+
+/* solicitud enviada: un check que se dibuja */
+.listo__ok{width:64px;height:64px}
+.listo__ok svg{width:100%;height:100%;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.listo__ok circle{stroke:var(--gold);stroke-width:2;stroke-dasharray:151;stroke-dashoffset:151;animation:trazo .6s var(--ease-out) .1s forwards}
+.listo__ok path{stroke:var(--cta-bg);stroke-width:3.2;stroke-dasharray:40;stroke-dashoffset:40;animation:trazo .36s var(--ease-out) .55s forwards}
+.bk[data-anim=vista] .listo > *{animation:subir .45s var(--ease-out) both}
+.bk[data-anim=vista] .listo > :nth-child(2){animation-delay:.18s}
+.bk[data-anim=vista] .listo > :nth-child(3){animation-delay:.24s}
+.bk[data-anim=vista] .listo > :nth-child(4){animation-delay:.3s}
+.bk[data-anim=vista] .listo > :nth-child(n+5){animation-delay:.36s}
+
+/* esperando la agenda */
+.cargando{animation:aparecer .4s both}
+
+/* ---------- Secciones que aparecen al bajar ---------- */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease-out) var(--d,0ms),transform .7s var(--ease-out) var(--d,0ms)}
+.rv.is-in{opacity:1;transform:none}
+.rows li{transition:background-color var(--t-fast)}
+
+/* ---------- Panel del salón ---------- */
+.tabpanel:not([hidden]){animation:subir .3s var(--ease-out) both}
+.tab{transition:color var(--t-fast),border-color var(--t-med) var(--ease-out)}
+#agendaLista[data-anim] .cita,#cliLista .cli{animation:subir .34s var(--ease-out) both}
+#agendaLista[data-anim] .cita:nth-child(2){animation-delay:.04s}
+#agendaLista[data-anim] .cita:nth-child(3){animation-delay:.08s}
+#agendaLista[data-anim] .cita:nth-child(n+4){animation-delay:.12s}
+.cita__mover,.cli__detalle:not([hidden]){animation:subir .3s var(--ease-out) both}
+.embudo__barra i{transform-origin:left;animation:crecerX .7s var(--ease-out) both}
+.embudo__paso:nth-child(2) i{animation-delay:.06s}.embudo__paso:nth-child(3) i{animation-delay:.12s}
+.embudo__paso:nth-child(4) i{animation-delay:.18s}.embudo__paso:nth-child(5) i{animation-delay:.24s}
+@keyframes crecerX{from{transform:scaleX(0)}to{transform:none}}
+
+/* ---------- Reducir movimiento ---------- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important;transition-delay:0s!important;scroll-behavior:auto!important}
+  .hero__art::after{display:none}
+  .rv{opacity:1;transform:none}
 }
 
 </style>
@@ -617,8 +737,8 @@ const vistaElegir = () => {
   const mesBase = new Date(hoy0().getFullYear(), hoy0().getMonth(), 1);
   const prevOk = st.mes > mesBase, nextOk = new Date(y, mo + 1, 1) < limite();
   const hs = st.dia ? libres(st.dia) : [];
-  const grupo = (titulo, lista) => lista.length ? `<div class="tgroup"><p class="tgroup__h">${titulo}</p><div class="tlist">${lista.map(m =>
-    `<button type="button" class="time" data-k="t${m}" data-hora="${m}" aria-pressed="${st.hora === m}">${hora(m)}</button>`).join("")}</div></div>` : "";
+  const grupo = (titulo, lista) => lista.length ? `<div class="tgroup"><p class="tgroup__h">${titulo}</p><div class="tlist">${lista.map((m, i) =>
+    `<button type="button" class="time" style="--i:${i}" data-k="t${m}" data-hora="${m}" aria-pressed="${st.hora === m}">${hora(m)}</button>`).join("")}</div></div>` : "";
   const nombres = elegidos().map(s => s.nombre).join(" + ");
   const nota = carga === "error" ? `<div class="nota" role="status"><p>No pudimos cargar la agenda del salón. Puedes reintentar, o elegir día y hora y enviar tu solicitud por WhatsApp.</p><p class="btn-row"><button type="button" class="btn btn--ghost btn--sm" data-k="reint" data-reintentar>Reintentar</button><a class="btn btn--ghost btn--sm" href="${esc(wa(`Hola, ${CONFIG.nombre}. Quiero reservar una cita.`))}" target="_blank" rel="noopener">Consultar por WhatsApp</a></p></div>` : "";
   return `${st.aviso ? `<p class="nota nota--alerta" role="alert">${esc(st.aviso)}</p>` : ""}${nota}
@@ -640,7 +760,7 @@ const vistaElegir = () => {
     </div>
     <div class="times">
       <p class="label" id="timesH">${st.dia ? esc(cap(fechaLarga(st.dia))) : "Horarios"}</p>
-      ${st.dia ? (hs.length ? grupo("Mañana", hs.filter(m => m < 720)) + grupo("Tarde", hs.filter(m => m >= 720)) : '<p class="muted">Ese día ya no quedan horarios.</p>') : '<p class="muted">Elige un día en el calendario de ${esc(MESES[mo])}.</p>'}
+      ${st.dia ? (hs.length ? grupo("Mañana", hs.filter(m => m < 720)) + grupo("Tarde", hs.filter(m => m >= 720)) : '<p class="muted">Ese día ya no quedan horarios.</p>') : `<p class="muted">Elige un día en el calendario de ${esc(MESES[mo])}.</p>`}
     </div>
   </div>
   <div class="bk__bar${st.hora != null ? " is-lista" : ""}">
@@ -744,6 +864,7 @@ const gcal = () => {
 
 const vistaListo = () => st.cita ? `
   <div class="listo">
+    <div class="listo__ok" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27.5l7.5 7.5L38 19"/></svg></div>
     <p class="listo__t">Recibimos tu solicitud</p>
     <p>La hora queda apartada para ti. Te escribiremos por WhatsApp al <b>${esc(st.datos.tel)}</b> para confirmarla.</p>
     <p><span class="tag">Pendiente de confirmar</span></p>
@@ -778,6 +899,9 @@ function render(opts = {}) {
   bk.innerHTML = `
     <div class="bk__top"><h3 class="bk__title" id="bkTitle" tabindex="-1">${titulo()}</h3>${pasos()}</div>
     ${st.vista === "elegir" ? vistaElegir() : st.vista === "datos" ? vistaDatos() : vistaListo()}`;
+  // qué cambió en este render, para que el CSS anime solo eso (y no todo cada vez que se toca algo)
+  const anim = opts.anim || (opts.titulo ? "vista" : "");
+  if (anim) bk.dataset.anim = anim; else delete bk.dataset.anim;
   if (opts.titulo) {
     const h = $("#bkTitle"); h.focus({ preventScroll: true });
     // al cambiar de paso, el título queda arriba (debajo del menú fijo) para empezar a leer desde ahí
@@ -815,16 +939,17 @@ bk.addEventListener("click", e => {
     st.mes = new Date(st.mes.getFullYear(), st.mes.getMonth() + Number(t.dataset.mes), 1);
     // la cita elegida tiene que estar en el mes que se ve: si no, se limpia
     if (st.dia && (st.dia.getMonth() !== st.mes.getMonth() || st.dia.getFullYear() !== st.mes.getFullYear())) { st.dia = null; st.hora = null; }
-    render({ foco: t.dataset.k });
+    render({ foco: t.dataset.k, anim: Number(t.dataset.mes) > 0 ? "mes-sig" : "mes-ant" });
     if (!bk.querySelector(`[data-k="${t.dataset.k}"]:not(:disabled)`)) bk.querySelector("[data-k=mprev]:not(:disabled), [data-k=mnext]:not(:disabled)")?.focus();
     avisar(`${cap(MESES[st.mes.getMonth()])} ${st.mes.getFullYear()}`);
   } else if (t.dataset.dia) {
     st.dia = new Date(st.mes.getFullYear(), st.mes.getMonth(), Number(t.dataset.dia)); st.hora = null; st.aviso = "";
-    render({ foco: t.dataset.k });
+    render({ foco: t.dataset.k, anim: "dia" });
     avisar(`${cap(fechaLarga(st.dia))}: ${horarios(libres(st.dia).length)}. Están a continuación.`);
   } else if (t.dataset.hora) {
+    const primera = st.hora == null;
     st.hora = Number(t.dataset.hora); st.aviso = ""; contar("hora");
-    render({ foco: t.dataset.k });
+    render({ foco: t.dataset.k, anim: primera ? "hora1" : "" });
     avisar(`Hora elegida: ${hora(st.hora)}, pulsa Continuar.`);
   } else if (t.dataset.go === "datos") {
     st.vista = "datos"; render({ titulo: true }); contar("datos");
@@ -1022,6 +1147,26 @@ if (API) {
   });
 }
 setInterval(pintarHorario, 60000);
+
+/* ---------- Movimiento: secciones que aparecen al bajar y menú con sombra ---------- */
+(() => {
+  const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const nav = $(".nav");
+  if (nav) {
+    const sombra = () => nav.classList.toggle("is-scrolled", scrollY > 8);
+    addEventListener("scroll", sombra, { passive: true }); sombra();
+  }
+  if (quieto || !("IntersectionObserver" in window)) return;
+  const piezas = [...document.querySelectorAll(".section .head, .rows, .band .steps > li, .policy, .visit > *")];
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); }
+  }), { rootMargin: "0px 0px -8% 0px" });
+  piezas.forEach((el, i) => {
+    const r = el.getBoundingClientRect();
+    if (r.top < innerHeight) return;               // lo que ya se ve al abrir no se esconde
+    el.classList.add("rv"); el.style.setProperty("--d", `${(i % 3) * 80}ms`); io.observe(el);
+  });
+})();
 }
 
 </script>
