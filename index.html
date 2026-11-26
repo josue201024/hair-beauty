@@ -19,7 +19,7 @@
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;min-width:0}
 [hidden]{display:none!important}
@@ -311,6 +311,48 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
   .hero__art img{width:auto;height:clamp(180px,48vw,300px);max-width:100%;object-fit:contain}
 }
 
+/* ===== Portada con foto ===== */
+.hero--foto{--hero-bg:#2a2018;--hero-ink:#f7f1e8;position:relative;isolation:isolate;overflow:hidden;background:var(--hero-bg);color:var(--hero-ink);
+  margin-top:calc(-1 * var(--nav-h) - 1px);padding-block:calc(var(--nav-h) + clamp(56px,9vh,120px)) clamp(64px,10vh,130px);min-height:min(100svh,900px);display:flex;align-items:center}
+.hero__foto{position:absolute;inset:0 0 0 auto;width:66%;z-index:-1}
+.hero__foto img{width:100%;height:100%;object-fit:cover;object-position:42% 28%}
+/* la foto se funde con el fondo por la izquierda y oscurece un poco arriba para leer el menú */
+.hero__foto::before{content:"";position:absolute;inset:0;z-index:1;background:
+  linear-gradient(90deg,var(--hero-bg) 0%,rgba(42,32,24,.82) 14%,rgba(42,32,24,.25) 38%,rgba(42,32,24,0) 56%),
+  linear-gradient(180deg,rgba(20,15,11,.55) 0%,rgba(20,15,11,0) 22%)}
+.hero--foto .hero__grid{display:block;flex:none}
+.hero--foto .hero__text{max-width:560px}
+.hero--foto .eyebrow{color:#e9d6a7;letter-spacing:.22em}
+.hero--foto h1{color:var(--hero-ink);font-size:clamp(52px,7.4vw,108px);line-height:.96;letter-spacing:-.02em;margin-top:18px}
+.hero--foto h1 em{font-style:italic;font-weight:400}
+.hero__svc{margin-top:26px;font:400 clamp(19px,1.9vw,24px)/1.35 var(--font-display);color:rgba(247,241,232,.92)}
+.hero--foto .btn-row{margin-top:34px;align-items:center;gap:18px 30px}
+.hero--foto .btn--cta{min-height:56px;padding:0 34px;font-size:17px;box-shadow:inset 0 0 0 1px rgba(233,214,167,.22)}
+.hero__link{color:var(--hero-ink);font:500 17px var(--font-text);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(247,241,232,.7);transition:border-color .2s}
+.hero__link:hover{border-bottom-color:#e9d6a7}
+.hero--foto .hero__meta{color:rgba(247,241,232,.75);margin-top:30px;max-width:480px}
+.hero--foto .hero__dir{color:rgba(247,241,232,.85)}
+.hero--foto :focus-visible{outline-color:#e9d6a7}
+
+/* menú transparente encima de la foto; al bajar vuelve a ser crema */
+.nav--hero:not(.is-scrolled){background:transparent;border-bottom-color:transparent}
+.nav--hero:not(.is-scrolled) .nav__logo,.nav--hero:not(.is-scrolled) .nav__links a{color:var(--hero-ink,#f7f1e8)}
+.nav--hero:not(.is-scrolled) .nav__name small{color:#e9d6a7}
+.nav--hero .nav__logo,.nav--hero .nav__links a{transition:color .3s}
+
+@media (max-width:760px){
+  .hero--foto{display:block;min-height:0;padding-block:0 56px}
+  .hero__foto{position:relative;width:100%;height:min(64svh,520px);inset:auto}
+  .hero__foto img{object-position:46% 22%}
+  .hero__foto::before{background:
+    linear-gradient(0deg,var(--hero-bg) 0%,rgba(42,32,24,.6) 18%,rgba(42,32,24,0) 42%),
+    linear-gradient(180deg,rgba(20,15,11,.6) 0%,rgba(20,15,11,0) 26%)}
+  .hero--foto .hero__grid{margin-top:-64px;position:relative}
+  .hero--foto h1{font-size:clamp(46px,13vw,64px)}
+  .hero--foto .btn-row{flex-direction:row}
+  .hero--foto .btn-row .btn{flex:0 1 auto}
+}
+
 /* ===== Movimiento y acabados =====
    Curvas: entrar con desaceleración suave, nunca rebotes largos. Todo se apaga con
    "reducir movimiento" del teléfono o la computadora (al final del archivo). */
@@ -338,17 +380,10 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
 .hero__text > :nth-child(3){animation-delay:.2s}
 .hero__text > :nth-child(4){animation-delay:.28s}
 .hero__text > :nth-child(5){animation-delay:.36s}
-.hero__art{
-  position:relative;overflow:hidden;isolation:isolate;
-  background:radial-gradient(120% 85% at 72% 18%,#1d5c45 0%,#0f3d2e 52%,#0a2c21 100%);
-  box-shadow:inset 0 0 0 1px rgba(221,170,97,.28),0 30px 60px -30px rgba(15,61,46,.55);
-  animation:crecer .9s var(--ease-out) .1s both;
-}
-/* un destello dorado que cruza una vez al abrir */
-.hero__art::after{content:"";position:absolute;inset:-10% auto -10% 0;width:38%;z-index:1;pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(255,236,190,.16),transparent);
-  transform:translateX(-120%) skewX(-18deg);animation:brillo 1.6s var(--ease-io) .9s 1 both}
-.hero__art img{position:relative;z-index:2;filter:drop-shadow(0 14px 28px rgba(0,0,0,.28));animation:flotar 7s ease-in-out 1.6s infinite}
+/* la foto entra con un acercamiento muy lento */
+@keyframes acercar{from{transform:scale(1.08)}to{transform:none}}
+.hero__foto img{animation:acercar 2.4s var(--ease-out) both}
+.hero__foto{animation:aparecer 1s var(--ease-out) both}
 
 /* ---------- Menú ---------- */
 .nav{transition:box-shadow var(--t-med) var(--ease-out),background-color var(--t-med)}
@@ -436,7 +471,7 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
 <body>
 <a class="skip" href="#main">Ir al contenido</a>
 
-<header class="nav">
+<header class="nav nav--hero">
   <div class="wrap nav__bar">
     <a class="nav__logo" href="#top">
       <img src="assets/mono.webp" alt="" width="42" height="48">
@@ -445,27 +480,28 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
     <nav class="nav__links" aria-label="Secciones">
       <a href="#servicios">Servicios</a>
       <a href="#como">Cómo funciona</a>
-      <a href="#horario">Horario y ubicación</a>
+      <a href="#horario">Ubicación</a>
     </nav>
     <a class="btn btn--cta nav__cta" href="#reservar">Reservar cita</a>
   </div>
 </header>
 
 <main id="main">
-  <section class="hero" id="top" aria-labelledby="hero-h">
+  <section class="hero hero--foto" id="top" aria-labelledby="hero-h">
+    <div class="hero__foto">
+      <img src="assets/portada.webp" srcset="assets/portada-720.webp 720w, assets/portada.webp 1072w" sizes="(max-width: 760px) 100vw, 66vw"
+        alt="Clienta de cabello rizado recién cortado, sentada en el salón" width="1072" height="851" fetchpriority="high" decoding="async">
+    </div>
     <div class="wrap hero__grid">
       <div class="hero__text">
-        <p class="eyebrow">Hair Beauty by Rosa Paulino</p>
-        <h1 id="hero-h">Salón de belleza en Santo Domingo</h1>
-        <p class="lead"><span id="heroPrecio">Corte de cabello por RD$1,000.</span> Elige el día y la hora aquí y te confirmamos la cita por WhatsApp.</p>
+        <p class="eyebrow">Santo Domingo</p>
+        <h1 id="hero-h">Tu corte,<br><em>con Rosa.</em></h1>
+        <p class="hero__svc" id="heroPrecio">Corte de cabello · 1 hora · RD$1,000</p>
         <div class="btn-row">
           <a class="btn btn--cta" href="#reservar">Reservar cita</a>
-          <a class="btn btn--ghost" href="#servicios">Ver servicios</a>
+          <a class="hero__link" href="#servicios">Ver servicios</a>
         </div>
         <p class="hero__meta"><span class="status"><span class="dot" id="heroDot" aria-hidden="true"></span><span id="heroEstado">Lunes y de miércoles a sábado</span></span><a class="hero__dir" href="https://www.google.com/maps/search/?api=1&amp;query=Calle%204%20%2312%2C%20Santo%20Domingo%2C%20Rep%C3%BAblica%20Dominicana" target="_blank" rel="noopener">Calle 4 #12, Santo Domingo</a></p>
-      </div>
-      <div class="hero__art">
-        <img src="assets/logo-hero.webp" alt="Logo de Hair Beauty by Rosa Paulino" width="791" height="754">
       </div>
     </div>
   </section>
@@ -694,9 +730,11 @@ function pintarServicios() {
       <button type="button" class="btn btn--ghost btn--sm" data-reservar="${esc(s.id)}">Reservar</button>
     </li>`).join("");
   const lead = $("#heroPrecio");
+  // "Corte de cabello · 1 hora · RD$1,000", siempre con los datos de la hoja de Google
+  const largo = m => { const h = Math.floor(m / 60), r = m % 60; return [h ? `${h} ${h === 1 ? "hora" : "horas"}` : "", r ? `${r} min` : ""].filter(Boolean).join(" "); };
   if (lead) lead.textContent = SERVICIOS.length === 1
-    ? `${SERVICIOS[0].nombre} por ${dinero(SERVICIOS[0].precio)}.`
-    : `Servicios desde ${dinero(Math.min(...SERVICIOS.map(s => s.precio)))}.`;
+    ? `${SERVICIOS[0].nombre} · ${largo(SERVICIOS[0].min)} · ${dinero(SERVICIOS[0].precio)}`
+    : `${SERVICIOS.length} servicios · desde ${dinero(Math.min(...SERVICIOS.map(s => s.precio)))}`;
 }
 $("#svcRows").addEventListener("click", e => {
   const b = e.target.closest("[data-reservar]"); if (!b) return;
