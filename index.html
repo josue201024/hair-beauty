@@ -314,7 +314,7 @@ h1,h2,.listo__t,.addr,.bk__title{font-optical-sizing:auto}
 /* ===== Portada con foto ===== */
 .hero--foto{--hero-bg:#2a2018;--hero-ink:#f7f1e8;position:relative;isolation:isolate;overflow:hidden;background:var(--hero-bg);color:var(--hero-ink);
   margin-top:calc(-1 * var(--nav-h) - 1px);padding-block:calc(var(--nav-h) + clamp(56px,9vh,120px)) clamp(64px,10vh,130px);min-height:min(100svh,900px);display:flex;align-items:center}
-.hero__foto{position:absolute;inset:0 0 0 auto;width:66%;z-index:-1}
+.hero__foto{position:absolute;inset:0 0 0 auto;width:66%;z-index:-1;overflow:hidden}
 .hero__foto img{width:100%;height:100%;object-fit:cover;object-position:42% 28%}
 /* la foto se funde con el fondo por la izquierda y oscurece un poco arriba para leer el menú */
 .hero__foto::before{content:"";position:absolute;inset:0;z-index:1;background:
